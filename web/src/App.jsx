@@ -1,5 +1,5 @@
-import UploadPage from "./pages/UploadPage";
+import LanguagePage from "./pages/LanguagePage";
 
 export default function App() {
-  return <UploadPage />;
+  return <LanguagePage />;
 }
