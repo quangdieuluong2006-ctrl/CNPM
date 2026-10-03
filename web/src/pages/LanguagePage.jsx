@@ -1,18 +1,22 @@
-import { useState } from "react";
 import { LANGUAGES } from "../data/mockData";
 
-export default function LanguagePage() {
-  const [selected, setSelected] = useState([]);
-
+export default function LanguagePage({
+  selected,
+  onSelectedChange,
+  onBack,
+  onNext,
+}) {
   const toggle = (code) => {
-    setSelected((prev) =>
-      prev.includes(code) ? prev.filter((c) => c !== code) : [...prev, code],
+    onSelectedChange(
+      selected.includes(code)
+        ? selected.filter((c) => c !== code)
+        : [...selected, code],
     );
   };
 
   return (
     <div style={{ maxWidth: 480, margin: "40px auto", padding: 16 }}>
-      <h1>Chọn ngôn ngữ đích</h1>
+      <h1 style={{ fontSize: 32 }}>Chọn ngôn ngữ đích</h1>
       {LANGUAGES.map((lang) => (
         <label key={lang.code} style={{ display: "block", margin: "8px 0" }}>
           <input
@@ -24,7 +28,10 @@ export default function LanguagePage() {
         </label>
       ))}
       <p>Đã chọn: {selected.length} ngôn ngữ</p>
-      <button disabled={selected.length === 0}>Tiếp tục</button>
+      <button onClick={onBack}>Quay lại</button>{" "}
+      <button disabled={selected.length === 0} onClick={onNext}>
+        Tiếp tục
+      </button>
     </div>
   );
 }
