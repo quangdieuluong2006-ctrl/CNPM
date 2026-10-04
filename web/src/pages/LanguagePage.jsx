@@ -15,23 +15,43 @@ export default function LanguagePage({
   };
 
   return (
-    <div style={{ maxWidth: 480, margin: "40px auto", padding: 16 }}>
-      <h1 style={{ fontSize: 32 }}>Chọn ngôn ngữ đích</h1>
-      {LANGUAGES.map((lang) => (
-        <label key={lang.code} style={{ display: "block", margin: "8px 0" }}>
-          <input
-            type="checkbox"
-            checked={selected.includes(lang.code)}
-            onChange={() => toggle(lang.code)}
-          />{" "}
-          {lang.name}
-        </label>
-      ))}
-      <p>Đã chọn: {selected.length} ngôn ngữ</p>
-      <button onClick={onBack}>Quay lại</button>{" "}
-      <button disabled={selected.length === 0} onClick={onNext}>
-        Tiếp tục
-      </button>
+    <div className="card">
+      <h1 className="page-title">Chọn ngôn ngữ đích</h1>
+      <p className="page-desc">Có thể chọn nhiều ngôn ngữ cùng lúc.</p>
+
+      <div className="lang-grid">
+        {LANGUAGES.map((lang) => {
+          const on = selected.includes(lang.code);
+          return (
+            <button
+              key={lang.code}
+              type="button"
+              aria-pressed={on}
+              className={`lang-item ${on ? "selected" : ""}`}
+              onClick={() => toggle(lang.code)}
+            >
+              <span className="lang-badge">{lang.code.toUpperCase()}</span>
+              <span className="lang-name">{lang.name}</span>
+              <span className="lang-check">{on ? "✓" : ""}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <p className="selected-count">Đã chọn: {selected.length} ngôn ngữ</p>
+
+      <div className="actions">
+        <button className="btn btn-secondary" onClick={onBack}>
+          ← Quay lại
+        </button>
+        <button
+          className="btn"
+          disabled={selected.length === 0}
+          onClick={onNext}
+        >
+          Tiếp tục →
+        </button>
+      </div>
     </div>
   );
 }
