@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { LANGUAGES } from "../data/mockData";
 
 function getStatus(percent) {
   if (percent < 30) return "Đang nhận dạng giọng nói...";
@@ -25,16 +26,30 @@ export default function ProgressPage({ file, languages, onDone, onCancel }) {
     }
   }, [percent, onDone]);
 
+  const names = languages.map(
+    (c) => LANGUAGES.find((l) => l.code === c)?.name ?? c,
+  );
+
   return (
-    <div style={{ maxWidth: 480, margin: "40px auto", padding: 16 }}>
-      <h1 style={{ fontSize: 32 }}>Tiến trình xử lý</h1>
-      <p>File: {file?.name}</p>
-      <p>Ngôn ngữ: {languages.join(", ")}</p>
-      <progress value={percent} max="100" style={{ width: "100%" }} />
-      <p>
-        {percent}% - {getStatus(percent)}
+    <div className="card">
+      <h1 className="page-title">Đang xử lý</h1>
+      <p className="page-desc">
+        {file?.name} → {names.join(", ")}
       </p>
-      {percent < 100 && <button onClick={onCancel}>Hủy</button>}
+
+      <div className="percent">{percent}%</div>
+      <div className="bar">
+        <div className="bar-fill" style={{ width: `${percent}%` }} />
+      </div>
+      <p className="status">{getStatus(percent)}</p>
+
+      {percent < 100 && (
+        <div className="actions">
+          <button className="btn btn-secondary" onClick={onCancel}>
+            Hủy
+          </button>
+        </div>
+      )}
     </div>
   );
 }

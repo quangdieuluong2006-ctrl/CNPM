@@ -1,8 +1,38 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import UploadPage from "./pages/UploadPage";
 import LanguagePage from "./pages/LanguagePage";
 import ProgressPage from "./pages/ProgressPage";
 import ResultPage from "./pages/ResultPage";
+
+const STEPS = [
+  { key: "upload", label: "Tải lên" },
+  { key: "language", label: "Ngôn ngữ" },
+  { key: "progress", label: "Xử lý" },
+  { key: "result", label: "Kết quả" },
+];
+
+function Stepper({ current }) {
+  const idx = STEPS.findIndex((s) => s.key === current);
+  return (
+    <div className="stepper">
+      {STEPS.map((s, i) => (
+        <Fragment key={s.key}>
+          <div
+            className={`step ${i === idx ? "active" : ""} ${
+              i < idx ? "done" : ""
+            }`}
+          >
+            <span className="step-num">{i < idx ? "✓" : i + 1}</span>
+            <span className="step-label">{s.label}</span>
+          </div>
+          {i < STEPS.length - 1 && (
+            <div className={`step-line ${i < idx ? "done" : ""}`} />
+          )}
+        </Fragment>
+      ))}
+    </div>
+  );
+}
 
 export default function App() {
   const [step, setStep] = useState("upload");
@@ -15,8 +45,9 @@ export default function App() {
     setStep("upload");
   };
 
+  let page;
   if (step === "language") {
-    return (
+    page = (
       <LanguagePage
         selected={languages}
         onSelectedChange={setLanguages}
@@ -24,10 +55,8 @@ export default function App() {
         onNext={() => setStep("progress")}
       />
     );
-  }
-
-  if (step === "progress") {
-    return (
+  } else if (step === "progress") {
+    page = (
       <ProgressPage
         file={file}
         languages={languages}
@@ -35,17 +64,29 @@ export default function App() {
         onCancel={() => setStep("language")}
       />
     );
-  }
-
-  if (step === "result") {
-    return <ResultPage file={file} languages={languages} onRestart={restart} />;
+  } else if (step === "result") {
+    page = <ResultPage file={file} languages={languages} onRestart={restart} />;
+  } else {
+    page = (
+      <UploadPage
+        file={file}
+        onFileChange={setFile}
+        onNext={() => setStep("language")}
+      />
+    );
   }
 
   return (
-    <UploadPage
-      file={file}
-      onFileChange={setFile}
-      onNext={() => setStep("language")}
-    />
+    <>
+      <header className="app-header">
+        <div className="logo">🎬</div>
+        <div>
+          <div className="app-title">Thuyết minh đa ngôn ngữ</div>
+          <div className="app-sub">Lồng tiếng video tự động</div>
+        </div>
+      </header>
+      <Stepper current={step} />
+      {page}
+    </>
   );
 }
