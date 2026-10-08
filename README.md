@@ -6,11 +6,11 @@
 
 ## Thành viên nhóm
 
-| Họ tên     | MSSV        | Phụ trách       |
-| ---------- | ----------- | --------------- |
-| (điền tên) | (điền MSSV) | Web             |
-| (điền tên) | (điền MSSV) | Mobile          |
-| (điền tên) | (điền MSSV) | Tài liệu, CI/CD |
+| Họ tên           | MSSV       | Phụ trách       |
+| ---------------- | ---------- | --------------- |
+| Lương DIệu Quang | 3124411246 | Web             |
+| Võ Ngọc Như      | 3124411207 | Mobile          |
+| Tăng Gia Bảo     | 31224411   | Tài liệu, CI/CD |
 
 ## Chức năng hiện có
 
