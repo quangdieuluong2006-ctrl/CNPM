@@ -76,3 +76,4 @@ Quét mã QR bằng app Expo Go (cần tài khoản Expo, đăng nhập bằng `
 ## Tài liệu
 
 - [PRD](PRD_Thuyet_Minh_Da_Ngon_Ngu_FrontEnd.docx)
+- [Use case và Sequence](docs/UseCase_Sequence.docx)
