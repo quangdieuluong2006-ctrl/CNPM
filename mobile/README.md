@@ -1,56 +1,78 @@
-# Welcome to your Expo app 👋
+# Thuyết minh tự động đa ngôn ngữ (Frontend)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Đồ án môn Công nghệ phần mềm, hướng Frontend: giao diện Web (React.js) và Mobile (React Native). Người dùng tải video lên, chọn ngôn ngữ đích, theo dõi tiến trình và nhận kết quả lồng tiếng.
 
-## Get started
+**Bản demo web:** https://cnpm-pied.vercel.app
 
-1. Install dependencies
+## Thành viên nhóm
 
-   ```bash
-   npm install
-   ```
+| Họ tên     | MSSV        | Phụ trách       |
+| ---------- | ----------- | --------------- |
+| (điền tên) | (điền MSSV) | Web             |
+| (điền tên) | (điền MSSV) | Mobile          |
+| (điền tên) | (điền MSSV) | Tài liệu, CI/CD |
 
-2. Start the app
+## Chức năng hiện có
 
-   ```bash
-   npx expo start
-   ```
+Luồng chính gồm 4 màn hình, chạy trên cả web và mobile:
 
-In the output, you'll find options to open the app in a
+1. **Tải lên**: chọn video hoặc audio cần lồng tiếng
+2. **Chọn ngôn ngữ**: chọn một hoặc nhiều ngôn ngữ đích
+3. **Tiến trình**: theo dõi phần trăm xử lý
+4. **Kết quả**: xem và tải bản đã lồng tiếng (web)
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+> Hiện tại phần xử lý dùng dữ liệu giả (mock) vì chưa nối với Backend. Khi có API thật sẽ thay thế.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Công nghệ
 
-## Get a fresh project
+- Web: React 19, Vite, JavaScript
+- Mobile: React Native, Expo (SDK 57), Expo Router, TypeScript
+- CI: GitHub Actions
+- CD: Vercel (web)
 
-When you're ready, run:
+## Cấu trúc thư mục
 
-```bash
-npm run reset-project
+```
+CNPM/
+├── web/       # Ứng dụng web (React + Vite)
+├── mobile/    # Ứng dụng mobile (React Native + Expo)
+└── .github/   # Cấu hình CI (GitHub Actions)
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Cách chạy
 
-### Other setup steps
+Yêu cầu: cài [Git](https://git-scm.com) và [Node.js](https://nodejs.org) (bản LTS).
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+git clone https://github.com/quangdieuluong2006-ctrl/CNPM.git
+```
 
-## Learn more
+**Web**
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+cd CNPM/web
+npm install
+npm run dev
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Mở http://localhost:5173
 
-## Join the community
+**Mobile**
 
-Join our community of developers creating universal apps.
+```bash
+cd CNPM/mobile
+npm install
+npx expo start
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Quét mã QR bằng app Expo Go (cần tài khoản Expo, đăng nhập bằng `npx expo login`). Nếu điện thoại và máy tính không cùng mạng Wi-Fi thì dùng `npx expo start --tunnel`.
+
+## Quy trình làm việc
+
+- Không code trực tiếp lên nhánh `main`, mỗi tính năng làm trên một nhánh riêng (ví dụ `feature/web-upload`).
+- Làm xong thì mở Pull Request, CI tự chạy kiểm tra, đạt thì gộp vào `main`.
+- Gộp vào `main` thì Vercel tự cập nhật bản web.
+
+## Tài liệu
+
+- [PRD](PRD_Thuyet_Minh_Da_Ngon_Ngu_FrontEnd.docx)
