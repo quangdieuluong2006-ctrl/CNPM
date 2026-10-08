@@ -1,78 +1,56 @@
-# Thuyết minh tự động đa ngôn ngữ (Frontend)
+# Welcome to your Expo app 👋
 
-Đồ án môn Công nghệ phần mềm, hướng Frontend: giao diện Web (React.js) và Mobile (React Native). Người dùng tải video lên, chọn ngôn ngữ đích, theo dõi tiến trình và nhận kết quả lồng tiếng.
+This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
-**Bản demo web:** https://cnpm-pied.vercel.app
+## Get started
 
-## Thành viên nhóm
+1. Install dependencies
 
-| Họ tên     | MSSV        | Phụ trách       |
-| ---------- | ----------- | --------------- |
-| (điền tên) | (điền MSSV) | Web             |
-| (điền tên) | (điền MSSV) | Mobile          |
-| (điền tên) | (điền MSSV) | Tài liệu, CI/CD |
+   ```bash
+   npm install
+   ```
 
-## Chức năng hiện có
+2. Start the app
 
-Luồng chính gồm 4 màn hình, chạy trên cả web và mobile:
+   ```bash
+   npx expo start
+   ```
 
-1. **Tải lên**: chọn video hoặc audio cần lồng tiếng
-2. **Chọn ngôn ngữ**: chọn một hoặc nhiều ngôn ngữ đích
-3. **Tiến trình**: theo dõi phần trăm xử lý
-4. **Kết quả**: xem và tải bản đã lồng tiếng (web)
+In the output, you'll find options to open the app in a
 
-> Hiện tại phần xử lý dùng dữ liệu giả (mock) vì chưa nối với Backend. Khi có API thật sẽ thay thế.
+- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
+- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
+- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
+- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
-## Công nghệ
+You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
 
-- Web: React 19, Vite, JavaScript
-- Mobile: React Native, Expo (SDK 57), Expo Router, TypeScript
-- CI: GitHub Actions
-- CD: Vercel (web)
+## Get a fresh project
 
-## Cấu trúc thư mục
-
-```
-CNPM/
-├── web/       # Ứng dụng web (React + Vite)
-├── mobile/    # Ứng dụng mobile (React Native + Expo)
-└── .github/   # Cấu hình CI (GitHub Actions)
-```
-
-## Cách chạy
-
-Yêu cầu: cài [Git](https://git-scm.com) và [Node.js](https://nodejs.org) (bản LTS).
+When you're ready, run:
 
 ```bash
-git clone https://github.com/quangdieuluong2006-ctrl/CNPM.git
+npm run reset-project
 ```
 
-**Web**
+This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
 
-```bash
-cd CNPM/web
-npm install
-npm run dev
-```
+### Other setup steps
 
-Mở http://localhost:5173
+- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
+- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
+- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
 
-**Mobile**
+## Learn more
 
-```bash
-cd CNPM/mobile
-npm install
-npx expo start
-```
+To learn more about developing your project with Expo, look at the following resources:
 
-Quét mã QR bằng app Expo Go (cần tài khoản Expo, đăng nhập bằng `npx expo login`). Nếu điện thoại và máy tính không cùng mạng Wi-Fi thì dùng `npx expo start --tunnel`.
+- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
+- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
 
-## Quy trình làm việc
+## Join the community
 
-- Không code trực tiếp lên nhánh `main`, mỗi tính năng làm trên một nhánh riêng (ví dụ `feature/web-upload`).
-- Làm xong thì mở Pull Request, CI tự chạy kiểm tra, đạt thì gộp vào `main`.
-- Gộp vào `main` thì Vercel tự cập nhật bản web.
+Join our community of developers creating universal apps.
 
-## Tài liệu
-
-- [PRD](PRD_Thuyet_Minh_Da_Ngon_Ngu_FrontEnd.docx)
+- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
+- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
