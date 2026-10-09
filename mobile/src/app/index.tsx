@@ -1,4 +1,6 @@
 import * as DocumentPicker from "expo-document-picker";
+import * as Sharing from "expo-sharing";
+import { useVideoPlayer, VideoView } from "expo-video";
 import { useEffect, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LANGUAGES } from "../data/mockData";
 
 type Step = "upload" | "language" | "progress" | "result";
-type PickedFile = { name: string; size?: number };
+type PickedFile = { name: string; size?: number; uri: string };
 
 const STEP_LABELS = ["Tải lên", "Ngôn ngữ", "Xử lý", "Kết quả"];
 const STEP_ORDER: Step[] = ["upload", "language", "progress", "result"];
@@ -75,11 +77,11 @@ function UploadScreen({
   const pick = async () => {
     const res = await DocumentPicker.getDocumentAsync({
       type: ["video/*", "audio/*"],
-      copyToCacheDirectory: false,
+      copyToCacheDirectory: true,
     });
     if (!res.canceled) {
       const a = res.assets[0];
-      onPick({ name: a.name, size: a.size });
+      onPick({ name: a.name, size: a.size, uri: a.uri });
     }
   };
 
@@ -249,30 +251,47 @@ function ResultScreen({
   languages: string[];
   onRestart: () => void;
 }) {
+  const [active, setActive] = useState(languages[0]);
+  const player = useVideoPlayer(file?.uri ?? null, (p) => {
+    p.loop = false;
+  });
+
+  const download = async () => {
+    if (file && (await Sharing.isAvailableAsync())) {
+      await Sharing.shareAsync(file.uri);
+    }
+  };
+
   return (
     <View style={styles.card}>
       <Text style={styles.title}>Hoàn tất 🎉</Text>
       <Text style={styles.desc}>{file?.name}</Text>
 
-      <Text style={styles.sectionLabel}>Các bản đã tạo</Text>
-      {languages.map((code) => (
-        <View key={code} style={styles.resultRow}>
-          <View style={[styles.badge, styles.badgeOn]}>
-            <Text style={[styles.badgeText, styles.badgeTextOn]}>
-              {code.toUpperCase()}
+      <View style={styles.tabs}>
+        {languages.map((code) => (
+          <Pressable
+            key={code}
+            onPress={() => setActive(code)}
+            style={[styles.tab, code === active && styles.tabActive]}
+          >
+            <Text
+              style={[styles.tabText, code === active && styles.tabTextActive]}
+            >
+              {nameOf(code)}
             </Text>
-          </View>
-          <Text style={styles.langName}>{nameOf(code)}</Text>
-          <Text style={styles.fileSub}>Sẵn sàng</Text>
-        </View>
-      ))}
+          </Pressable>
+        ))}
+      </View>
+
+      <VideoView player={player} style={styles.video} nativeControls />
 
       <Text style={[styles.fileSub, { marginTop: 12 }]}>
-        Bản demo: chưa có giọng lồng tiếng thật, sẽ nối với BE sau.
+        Bản demo: đang phát file gốc, chưa có giọng lồng tiếng thật.
       </Text>
 
-      <View style={styles.actions}>
-        <Button label="Làm video mới" onPress={onRestart} />
+      <View style={styles.actionsWrap}>
+        <Button label="Làm video mới" onPress={onRestart} secondary />
+        <Button label={`Tải về bản ${nameOf(active)}`} onPress={download} />
       </View>
     </View>
   );
@@ -438,6 +457,31 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   barFill: { height: "100%", backgroundColor: PRIMARY },
+
+  tabs: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginBottom: 12 },
+  tab: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 99,
+    borderWidth: 1,
+    borderColor: BORDER,
+  },
+  tabActive: { backgroundColor: PRIMARY, borderColor: PRIMARY },
+  tabText: { fontSize: 14, color: TEXT },
+  tabTextActive: { color: "#fff" },
+  video: {
+    width: "100%",
+    height: 220,
+    borderRadius: 12,
+    backgroundColor: "#000",
+  },
+
+  actionsWrap: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+    marginTop: 24,
+  },
 
   resultRow: {
     flexDirection: "row",
