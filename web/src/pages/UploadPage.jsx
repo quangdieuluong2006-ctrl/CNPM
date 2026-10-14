@@ -5,10 +5,15 @@ const FORMATS = ["MP4", "MOV", "MKV", "MP3", "WAV"];
 export default function UploadPage({ file, onFileChange, onNext }) {
   const inputRef = useRef(null);
   const [dragging, setDragging] = useState(false);
+  const [error, setError] = useState("");
 
   const handleFile = (f) => {
-    if (f && (f.type.startsWith("video/") || f.type.startsWith("audio/"))) {
+    if (!f) return;
+    if (f.type.startsWith("video/") || f.type.startsWith("audio/")) {
+      setError("");
       onFileChange(f);
+    } else {
+      setError("Chỉ hỗ trợ tệp video hoặc audio (MP4, MOV, MKV, MP3, WAV).");
     }
   };
 
@@ -70,6 +75,12 @@ export default function UploadPage({ file, onFileChange, onNext }) {
           }}
         />
       </div>
+
+      {error && (
+        <p className="error-msg" role="alert">
+          {error}
+        </p>
+      )}
 
       {file ? (
         <div className="file-chip file-chip-lg">
