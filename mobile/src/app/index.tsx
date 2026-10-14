@@ -1,4 +1,5 @@
 import * as DocumentPicker from "expo-document-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Sharing from "expo-sharing";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useEffect, useState } from "react";
@@ -7,7 +8,24 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { LANGUAGES } from "../data/mockData";
 
-type Step = "upload" | "language" | "progress" | "result";
+type Step = "upload" | "language" | "progress" | "result" | "history";
+
+type HistoryItem = {
+  id: number;
+  name: string;
+  size: number;
+  languages: string[];
+  time: string;
+};
+
+const STORAGE_KEY = "dubbing-history";
+
+function formatTime(iso: string) {
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${p(d.getHours())}:${p(d.getMinutes())} ${p(d.getDate())}/${p(d.getMonth() + 1)}/${d.getFullYear()}`;
+}
+
 type PickedFile = { name: string; size?: number; uri: string };
 
 const STEP_LABELS = ["Tải lên", "Ngôn ngữ", "Xử lý", "Kết quả"];
@@ -297,10 +315,74 @@ function ResultScreen({
   );
 }
 
+function HistoryScreen({
+  items,
+  onBack,
+  onClear,
+}: {
+  items: HistoryItem[];
+  onBack: () => void;
+  onClear: () => void;
+}) {
+  return (
+    <View style={styles.card}>
+      <Text style={styles.title}>Lịch sử</Text>
+      <Text style={styles.desc}>Các video đã xử lý trên máy này.</Text>
+
+      {items.length === 0 ? (
+        <View style={[styles.fileBox, styles.fileEmpty]}>
+          <Text style={styles.fileSub}>Chưa có video nào được xử lý</Text>
+        </View>
+      ) : (
+        items.map((it) => (
+          <View key={it.id} style={styles.historyItem}>
+            <Text style={styles.fileName} numberOfLines={1}>
+              {it.name}
+            </Text>
+            <Text style={styles.fileSub}>
+              {formatTime(it.time)} · {(it.size / 1024 / 1024).toFixed(1)} MB
+            </Text>
+            <View style={styles.historyLangs}>
+              {it.languages.map((c) => (
+                <View key={c} style={styles.chip}>
+                  <Text style={styles.chipText}>{nameOf(c)}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ))
+      )}
+
+      <View style={styles.actions}>
+        <Button label="← Quay lại" onPress={onBack} secondary />
+        {items.length > 0 && (
+          <Pressable onPress={onClear}>
+            <Text style={styles.link}>Xóa lịch sử</Text>
+          </Pressable>
+        )}
+      </View>
+    </View>
+  );
+}
+
 export default function Index() {
   const [step, setStep] = useState<Step>("upload");
   const [file, setFile] = useState<PickedFile | null>(null);
   const [languages, setLanguages] = useState<string[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
+
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY)
+      .then((raw) => {
+        if (raw) setHistory(JSON.parse(raw));
+      })
+      .catch(() => {});
+  }, []);
+
+  const saveHistory = (list: HistoryItem[]) => {
+    setHistory(list);
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(list)).catch(() => {});
+  };
 
   const restart = () => {
     setFile(null);
@@ -308,11 +390,35 @@ export default function Index() {
     setStep("upload");
   };
 
+  const finishJob = () => {
+    const entry: HistoryItem = {
+      id: Date.now(),
+      name: file?.name ?? "Không rõ tên",
+      size: file?.size ?? 0,
+      languages,
+      time: new Date().toISOString(),
+    };
+    saveHistory([entry, ...history].slice(0, 20));
+    setStep("result");
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text style={styles.appTitle}>🎬 Thuyết minh đa ngôn ngữ</Text>
-        <Stepper current={step} />
+
+        {step !== "progress" && step !== "history" && (
+          <Pressable
+            style={styles.historyBtn}
+            onPress={() => setStep("history")}
+          >
+            <Text style={styles.historyBtnText}>
+              Lịch sử ({history.length})
+            </Text>
+          </Pressable>
+        )}
+
+        {step !== "history" && <Stepper current={step} />}
 
         {step === "upload" && (
           <UploadScreen
@@ -333,12 +439,19 @@ export default function Index() {
           <ProgressScreen
             file={file}
             languages={languages}
-            onDone={() => setStep("result")}
+            onDone={finishJob}
             onCancel={() => setStep("language")}
           />
         )}
         {step === "result" && (
           <ResultScreen file={file} languages={languages} onRestart={restart} />
+        )}
+        {step === "history" && (
+          <HistoryScreen
+            items={history}
+            onBack={() => setStep("upload")}
+            onClear={() => saveHistory([])}
+          />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -482,6 +595,39 @@ const styles = StyleSheet.create({
     gap: 12,
     marginTop: 24,
   },
+
+  historyBtn: {
+    alignSelf: "flex-end",
+    marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: BORDER,
+    backgroundColor: "#fff",
+  },
+  historyBtnText: { fontSize: 14, fontWeight: "600", color: TEXT },
+  historyItem: {
+    padding: 14,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: BORDER,
+    borderRadius: 12,
+  },
+  historyLangs: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 8,
+  },
+  chip: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 99,
+    borderWidth: 1,
+    borderColor: BORDER,
+  },
+  chipText: { fontSize: 12, fontWeight: "600", color: MUTED },
 
   resultRow: {
     flexDirection: "row",
