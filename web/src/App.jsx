@@ -3,6 +3,7 @@ import UploadPage from "./pages/UploadPage";
 import LanguagePage from "./pages/LanguagePage";
 import ProgressPage from "./pages/ProgressPage";
 import ResultPage from "./pages/ResultPage";
+import HistoryPage from "./pages/HistoryPage";
 
 const STEPS = [
   { key: "upload", label: "Tải lên" },
@@ -10,6 +11,25 @@ const STEPS = [
   { key: "progress", label: "Xử lý" },
   { key: "result", label: "Kết quả" },
 ];
+
+const STORAGE_KEY = "dubbing-history";
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveHistory(list) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+  } catch {
+    // bỏ qua nếu trình duyệt chặn lưu trữ
+  }
+}
 
 function Stepper({ current }) {
   const idx = STEPS.findIndex((s) => s.key === current);
@@ -38,6 +58,7 @@ export default function App() {
   const [step, setStep] = useState("upload");
   const [file, setFile] = useState(null);
   const [languages, setLanguages] = useState([]);
+  const [history, setHistory] = useState(loadHistory);
 
   const restart = () => {
     setFile(null);
@@ -45,8 +66,35 @@ export default function App() {
     setStep("upload");
   };
 
+  const finishJob = () => {
+    const entry = {
+      id: Date.now(),
+      name: file?.name ?? "Không rõ tên",
+      size: file?.size ?? 0,
+      languages,
+      time: new Date().toISOString(),
+    };
+    const next = [entry, ...history].slice(0, 20);
+    setHistory(next);
+    saveHistory(next);
+    setStep("result");
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    saveHistory([]);
+  };
+
   let page;
-  if (step === "language") {
+  if (step === "history") {
+    page = (
+      <HistoryPage
+        items={history}
+        onBack={() => setStep("upload")}
+        onClear={clearHistory}
+      />
+    );
+  } else if (step === "language") {
     page = (
       <LanguagePage
         selected={languages}
@@ -60,7 +108,7 @@ export default function App() {
       <ProgressPage
         file={file}
         languages={languages}
-        onDone={() => setStep("result")}
+        onDone={finishJob}
         onCancel={() => setStep("language")}
       />
     );
@@ -84,8 +132,16 @@ export default function App() {
           <div className="app-title">Thuyết minh đa ngôn ngữ</div>
           <div className="app-sub">Lồng tiếng video tự động</div>
         </div>
+        {step !== "progress" && step !== "history" && (
+          <button
+            className="btn btn-secondary header-history"
+            onClick={() => setStep("history")}
+          >
+            Lịch sử ({history.length})
+          </button>
+        )}
       </header>
-      <Stepper current={step} />
+      {step !== "history" && <Stepper current={step} />}
       {page}
     </>
   );

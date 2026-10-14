@@ -510,3 +510,45 @@ video {
     padding: 36px 14px 28px;
   }
 }
+/* ===== Thông báo lỗi và Lịch sử ===== */
+.error-msg {
+  margin: 12px 0 0;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.header-history {
+  margin-left: auto;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.history-langs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.history-status {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
