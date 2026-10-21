@@ -9,7 +9,6 @@
 | Họ tên           | MSSV       | Phụ trách       |
 | ---------------- | ---------- | --------------- |
 | Lương DIệu Quang | 3124411246 | Web             |
-| Võ Ngọc Như      | 3124411207 | Mobile          |
 | Tăng Gia Bảo     | 3124411035   | Tài liệu, CI/CD |
 
 ## Chức năng hiện có
