@@ -7,6 +7,10 @@
   --primary: #4f46e5;
   --primary-hover: #4338ca;
   --primary-soft: #eef0ff;
+  --accent: #a855f7;
+  --success: #10b981;
+  --danger: #dc2626;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.06);
   font-family:
     system-ui,
     -apple-system,
@@ -25,6 +29,7 @@
     --primary: #6366f1;
     --primary-hover: #818cf8;
     --primary-soft: #262a4a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -39,38 +44,258 @@ body {
   color: var(--text);
 }
 
-#root {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 24px 16px 48px;
+body {
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Thanh tiêu đề */
-.app-header {
+/* Khung nội dung của luồng thuyết minh */
+.app-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+}
+
+/* ===== Thanh trên cùng ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  margin-bottom: 20px;
 }
 
-.logo {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--primary), #a855f7);
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-name {
+  font-weight: 750;
+  font-size: 16px;
+  letter-spacing: -0.2px;
+}
+
+.brand-sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  background: var(--primary-soft);
+}
+
+.badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 99px;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  display: inline-grid;
+  place-items: center;
+}
+
+/* Ảnh đại diện + menu tài khoản */
+.user-menu {
+  position: relative;
+}
+
+.avatar-btn {
+  position: relative;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 22px;
-}
-
-.app-title {
-  font-size: 18px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
   font-weight: 700;
 }
 
-.app-sub {
+.presence-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f59e0b;
+  border: 2px solid var(--card);
+}
+
+.presence-dot.on {
+  background: var(--success);
+}
+
+.presence-dot.inline {
+  position: static;
+  display: inline-block;
+  border: none;
+  width: 8px;
+  height: 8px;
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 250px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+
+.menu-head {
+  padding: 10px 10px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 6px;
+}
+
+.menu-name {
+  font-weight: 700;
+}
+
+.menu-email {
   font-size: 13px;
   color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.menu-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.menu-status.on {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  background: var(--primary-soft);
+}
+
+/* Lời chào sau khi đăng nhập/đăng ký */
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  border: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--success) 10%, var(--card));
+  animation: toast-in 0.25s ease-out;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+}
+
+.toast-icon {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--success);
+  color: #fff;
+}
+
+.toast-title {
+  font-weight: 700;
+}
+
+.toast-sub {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.toast-close {
+  margin-left: auto;
+  border: none;
+  background: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 /* Thanh 4 bước */
@@ -132,7 +357,7 @@ body {
   border: 1px solid var(--border);
   border-radius: 16px;
   padding: 28px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .page-title {
@@ -387,13 +612,22 @@ video {
 }
 
 @media (max-width: 520px) {
-  #root {
-    padding: 16px 10px 40px;
+  .app-shell {
+    padding: 14px 12px 40px;
   }
   .card {
     padding: 18px;
+    border-radius: 14px;
   }
-  .step-label {
+  .step {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+  }
+  .step-line {
+    margin: 0 4px 18px;
+  }
+  .icon-btn-label {
     display: none;
   }
 }
@@ -408,7 +642,7 @@ video {
 }
 
 .dropzone-lg {
-  padding: 56px 20px 40px;
+  padding: 36px 20px 28px;
 }
 
 .dropzone-circle {
@@ -504,11 +738,56 @@ video {
 
 @media (max-width: 520px) {
   .page-title-lg {
-    font-size: 28px;
+    font-size: 24px;
+  }
+  .page-desc-lg {
+    font-size: 15px;
+    margin-bottom: 16px;
   }
   .dropzone-lg {
-    padding: 36px 14px 28px;
+    padding: 22px 14px 18px;
   }
+  .dropzone-circle {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+  /* Điện thoại không kéo thả được: chỉ giữ biểu tượng + nút chọn tệp */
+  .dropzone-lg .dropzone-title,
+  .dropzone-lg .dropzone-hint {
+    display: none;
+  }
+  .format-chip {
+    padding: 3px 10px;
+    font-size: 11px;
+  }
+  .format-row {
+    margin-top: 16px;
+  }
+  .btn-lg {
+    padding: 12px 22px;
+    font-size: 16px;
+  }
+}
+
+/* Biểu tượng SVG trong khung tệp */
+.file-icon,
+.file-empty-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: var(--primary-soft);
+  color: var(--primary);
+  font-size: 0;
+}
+
+.file-empty-icon {
+  background: var(--bg);
+  color: var(--muted);
+  opacity: 1;
 }
 /* ===== Thông báo lỗi và Lịch sử ===== */
 .error-msg {
@@ -553,27 +832,131 @@ video {
   color: var(--primary);
 }
 
-/* ===== Đăng nhập / Đăng ký và trạng thái trực tuyến ===== */
-.auth-wrap {
-  max-width: 440px;
-  margin: 0 auto;
+/* ===== Trang Đăng nhập / Đăng ký ===== */
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
 }
 
-.auth-brand {
+.auth-hero {
+  position: relative;
+  overflow: hidden;
+  padding: 48px 56px;
   display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 18px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  color: #fff;
+  background:
+    radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.18), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(168, 85, 247, 0.55), transparent 45%),
+    linear-gradient(140deg, #4338ca, #6d28d9);
 }
 
-.auth-card {
+.brand-light .brand-sub {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.hero-title {
+  margin: 12px 0 0;
+  max-width: 520px;
+  font-size: 34px;
+  line-height: 1.2;
+  letter-spacing: -0.6px;
+}
+
+.hero-desc {
+  margin: 0;
+  max-width: 480px;
+  font-size: 16px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.hero-features {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
 
-.auth-tabs {
-  margin-bottom: 4px;
+.hero-features li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-features strong,
+.hero-features small {
+  display: block;
+}
+
+.hero-features small {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+}
+
+.hero-feature-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.auth-panel {
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+}
+
+.auth-form {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-title {
+  margin: 0;
+  font-size: 26px;
+  letter-spacing: -0.4px;
+}
+
+.auth-desc {
+  margin: 4px 0 0;
+  color: var(--muted);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--border);
+}
+
+.segmented button {
+  padding: 9px 0;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.segmented button.active {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.12);
 }
 
 .field {
@@ -590,18 +973,53 @@ video {
 }
 
 .input {
+  width: 100%;
   padding: 11px 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background: var(--bg);
+  background: var(--card);
   color: var(--text);
   font: inherit;
   font-size: 16px; /* ≥ 16px để iPhone không tự phóng to khi gõ */
 }
 
+.input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
 .input:focus {
-  outline: 2px solid var(--primary);
-  outline-offset: 1px;
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-wrap .input {
+  padding-right: 44px;
+}
+
+.input-addon {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.input-addon:hover {
+  color: var(--text);
 }
 
 .field-check {
@@ -611,48 +1029,62 @@ video {
   font-size: 14px;
 }
 
+.field-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--primary);
+}
+
+.form-error {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--danger) 10%, var(--card));
+  color: var(--danger);
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .auth-submit {
   width: 100%;
   margin-top: 4px;
 }
 
-.user-bar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: -6px 0 16px;
-  padding: 10px 14px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--card);
+.auth-switch {
+  margin: 0;
+  text-align: center;
   font-size: 14px;
-}
-
-.user-bar-name {
-  display: flex;
-  flex-direction: column;
-  font-weight: 600;
-}
-
-.user-bar-status {
-  font-weight: 400;
-  font-size: 12px;
   color: var(--muted);
 }
 
-.user-bar .btn-link {
-  margin-left: auto;
+.auth-switch .btn-link {
+  font-weight: 600;
+  padding: 0;
 }
 
-.online-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #f59e0b;
-  flex-shrink: 0;
-}
-
-.online-dot.on {
-  background: #10b981;
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+@media (max-width: 860px) {
+  .auth-page {
+    grid-template-columns: 1fr;
+  }
+  .auth-hero {
+    padding: 18px 20px 20px;
+    gap: 8px;
+  }
+  .hero-title {
+    margin-top: 4px;
+    font-size: 19px;
+  }
+  .hero-desc {
+    display: none;
+  }
+  .hero-features {
+    display: none;
+  }
+  .auth-panel {
+    place-items: start center;
+    padding: 22px 18px 40px;
+  }
+  .auth-title {
+    font-size: 22px;
+  }
 }

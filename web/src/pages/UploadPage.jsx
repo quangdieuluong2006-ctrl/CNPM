@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { IconFile, IconFilm } from "../components/icons";
 
 const FORMATS = ["MP4", "MOV", "MKV", "MP3", "WAV"];
 
@@ -84,7 +85,9 @@ export default function UploadPage({ file, onFileChange, onNext }) {
 
       {file ? (
         <div className="file-chip file-chip-lg">
-          <span className="file-icon">🎞️</span>
+          <span className="file-icon">
+            <IconFilm size={22} />
+          </span>
           <div className="file-info">
             <div className="file-name">{file.name}</div>
             <div className="file-size">
@@ -97,7 +100,9 @@ export default function UploadPage({ file, onFileChange, onNext }) {
         </div>
       ) : (
         <div className="file-empty">
-          <span className="file-empty-icon">📄</span>
+          <span className="file-empty-icon">
+            <IconFile size={22} />
+          </span>
           <div>
             <div className="file-empty-title">Chưa có tệp nào được chọn</div>
             <div className="file-empty-sub">

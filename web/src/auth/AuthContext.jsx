@@ -6,6 +6,8 @@ import { AuthContext } from "./context";
 export function AuthProvider({ children }) {
   const [status, setStatus] = useState("loading");
   const [user, setUser] = useState(null);
+  // Lời chào sau khi đăng nhập/đăng ký (không hiện khi chỉ khôi phục phiên lúc tải lại trang)
+  const [welcome, setWelcome] = useState(null);
 
   const toGuest = useCallback(() => {
     api.clearSession();
@@ -25,13 +27,29 @@ export function AuthProvider({ children }) {
     return () => api.setSessionExpiredHandler(null);
   }, [accept, toGuest]);
 
-  const login = useCallback(async (email, password) => accept(await api.login(email, password)), [accept]);
-  const register = useCallback(async (input) => accept(await api.register(input)), [accept]);
+  const login = useCallback(
+    async (email, password) => {
+      accept(await api.login(email, password));
+      setWelcome("login");
+    },
+    [accept],
+  );
+  const register = useCallback(
+    async (input) => {
+      accept(await api.register(input));
+      setWelcome("register");
+    },
+    [accept],
+  );
+  const dismissWelcome = useCallback(() => setWelcome(null), []);
   const logout = useCallback(async () => {
     await api.logout().catch(() => undefined);
     toGuest();
   }, [toGuest]);
 
-  const value = useMemo(() => ({ status, user, login, register, logout }), [status, user, login, register, logout]);
+  const value = useMemo(
+    () => ({ status, user, welcome, login, register, logout, dismissWelcome }),
+    [status, user, welcome, login, register, logout, dismissWelcome],
+  );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
