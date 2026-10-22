@@ -1,6 +1,6 @@
-# Thuyết minh tự động đa ngôn ngữ (Frontend)
+# Thuyết minh tự động đa ngôn ngữ
 
-Đồ án môn Công nghệ phần mềm, hướng Frontend: giao diện Web (React.js) và Mobile (React Native). Người dùng tải video lên, chọn ngôn ngữ đích, theo dõi tiến trình và nhận kết quả lồng tiếng.
+Đồ án môn Công nghệ phần mềm: hệ thống full-stack gồm Backend Node.js + SQL Server, Web User, Web Admin (React.js) và Mobile (React Native). Người dùng tải video lên, chọn ngôn ngữ đích, theo dõi tiến trình và nhận kết quả lồng tiếng.
 
 **Bản demo web:** https://cnpm-pied.vercel.app
 
@@ -12,31 +12,67 @@
 | Võ Thị Ngọc Như      | 3124411207 | Mobile          |
 | Tăng Gia Bảo     | 3124411035   | Tài liệu, CI/CD |
 
-## Chức năng hiện có
+## Thành phần hệ thống
 
-Luồng chính gồm 4 màn hình, chạy trên cả web và mobile:
+| Thư mục | Thành phần | Công nghệ |
+|---|---|---|
+| `api/` | Backend REST + realtime | Node.js 22, Express 5, TypeScript, Socket.IO |
+| `db/` | Cơ sở dữ liệu: migration, view, stored procedure | **SQL Server 2022** |
+| `admin/` | **Web Admin**: thống kê, người dùng đang hoạt động | React 19, Vite 8, TypeScript, TanStack Query, Tailwind CSS, Recharts |
+| `web/` | Web User: tải lên, chọn ngôn ngữ, tiến trình, kết quả | React 19, Vite |
+| `mobile/` | Ứng dụng Mobile | React Native, Expo SDK 57, TypeScript |
 
-1. **Tải lên**: chọn video hoặc audio cần lồng tiếng
-2. **Chọn ngôn ngữ**: chọn một hoặc nhiều ngôn ngữ đích
-3. **Tiến trình**: theo dõi phần trăm xử lý
-4. **Kết quả**: xem và tải bản đã lồng tiếng (web)
+Tài liệu đặc tả: **PRD v3.0** (Backend + SQL Server, Web User, Web Admin, Mobile, presence).
 
-> Hiện tại phần xử lý dùng dữ liệu giả (mock) vì chưa nối với Backend. Khi có API thật sẽ thay thế.
+## Đã hoàn thành
 
-## Công nghệ
+- **CSDL SQL Server**: 14 bảng, view `v_active_users`, thủ tục `sp_admin_dashboard_stats`, migration + dữ liệu mẫu
+- **Xác thực**: đăng ký, đăng nhập, refresh token xoay vòng, đăng xuất, phân quyền user/admin, khóa tài khoản
+- **Người dùng đang hoạt động (presence)**: Socket.IO + nhịp tim 30 giây + bảng `user_sessions`; Web Admin thấy số người online theo thời gian thực
+- **Web Admin**: Dashboard 6 chỉ số + biểu đồ, trang Người dùng đang hoạt động
 
-- Web: React 19, Vite, JavaScript
-- Mobile: React Native, Expo (SDK 57), Expo Router, TypeScript
-- CI: GitHub Actions
-- CD: Vercel (web)
+## Cách chạy nhanh (Windows)
+
+1. **SQL Server 2022** đang chạy, bật đăng nhập `sa` và TCP/IP cổng 1433 (hoặc dùng `docker compose up -d sqlserver`).
+2. **API**: `cd api` → `copy .env.example .env` (sửa `DB_PASSWORD`) → `npm install` → `npm run db:migrate` → `npm run db:seed` → `npm run dev`
+3. **Web User**: `cd web` → `npm install` → `npm run dev` → http://localhost:5173
+4. **Web Admin**: `cd admin` → `npm install` → `npm run dev` → http://localhost:5174, đăng nhập `admin@demo.vn` / `Demo@12345`
+
+Chi tiết: `api/README.md`, `web/README.md`, `admin/README.md`.
+
+## Kịch bản demo: "Làm sao biết có 4 người dùng đang hoạt động?"
+
+**Cách 1 – người thật quét mã QR** (thuyết phục nhất):
+
+1. Chạy đủ API, Web User, Web Admin như trên. Laptop và điện thoại của các bạn dùng **cùng một mạng Wi-Fi**
+   (Wi-Fi trường thường chặn các máy nhìn thấy nhau → phát Wi-Fi từ điện thoại của mình cho chắc).
+2. Mở cổng 5173 trên Windows Firewall (chỉ làm một lần, PowerShell **Run as administrator**):
+   ```powershell
+   New-NetFirewallRule -DisplayName "Thuyet minh - Web User 5173" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow
+   ```
+   Nếu Windows hiện hộp thoại "Allow access" cho Node.js thì bấm **Allow**.
+3. Web Admin → **Người dùng đang hoạt động** → **Mời tham gia (QR)** → chiếu mã QR (chọn đúng mạng Wi-Fi nếu có nhiều mạng).
+4. 4 bạn quét mã → trang Đăng ký mở trên điện thoại → tạo tài khoản → số trên Web Admin tăng 1 → 4 ngay lập tức.
+5. Kiểm chứng trong SSMS: `SELECT * FROM dbo.v_active_users;` và `SELECT * FROM dbo.users ORDER BY id DESC;`
+
+**Cách 2 – script mô phỏng** (khi không có điện thoại): `cd api` → `npm run demo:presence -- 4 --giu`
+(4 tài khoản mẫu vào và **ở lại** tới khi nhấn Ctrl+C).
+
+**Giải thích cơ chế:** mỗi kết nối Socket.IO ghi một dòng `user_sessions`; client gửi nhịp tim 30 giây cập nhật `last_seen_at`;
+"đang hoạt động" = phiên chưa đóng và có nhịp tim trong 60 giây; đếm `DISTINCT user_id` (view `v_active_users`), nên một người
+mở nhiều tab vẫn tính 1; thoát → `disconnected_at`; mất mạng → tác vụ dọn phiên đóng sau 60 giây; mỗi thay đổi đẩy `presence.update`
+tới Web Admin.
 
 ## Cấu trúc thư mục
 
 ```
 CNPM/
-├── web/       # Ứng dụng web (React + Vite)
+├── api/       # Backend Node.js + Express + Socket.IO
+├── db/        # migration SQL Server
+├── admin/     # Web Admin (React + Vite + TypeScript)
+├── web/       # Web User (React + Vite)
 ├── mobile/    # Ứng dụng mobile (React Native + Expo)
-└── .github/   # Cấu hình CI (GitHub Actions)
+└── .github/   # CI (GitHub Actions)
 ```
 
 ## Cách chạy
@@ -69,9 +105,10 @@ Quét mã QR bằng app Expo Go (cần tài khoản Expo, đăng nhập bằng `
 
 ## Quy trình làm việc
 
-- Không code trực tiếp lên nhánh `main`, mỗi tính năng làm trên một nhánh riêng (ví dụ `feature/web-upload`).
-- Làm xong thì mở Pull Request, CI tự chạy kiểm tra, đạt thì gộp vào `main`.
-- Gộp vào `main` thì Vercel tự cập nhật bản web.
+- Không code trực tiếp lên `main` hay `develop`; mỗi tính năng làm trên một nhánh riêng tạo từ `develop` (ví dụ `feature/FE-12-presence`).
+- Làm xong thì mở Pull Request vào **`develop`**, CI tự chạy kiểm tra, **thành viên còn lại review và Approve** rồi mới gộp.
+- Khi chốt bản để báo cáo/phát hành: mở Pull Request `develop` → `main`. Gộp vào `main` thì Vercel tự cập nhật bản web.
+- Commit theo Conventional Commits: `feat(...)`, `fix(...)`, `test(...)`, `docs(...)`.
 
 ## Tài liệu
 

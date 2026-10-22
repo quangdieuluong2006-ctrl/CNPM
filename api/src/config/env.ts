@@ -13,6 +13,18 @@ const schema = z.object({
   DB_ENCRYPT: z.stringbool().default(true),
   DB_TRUST_SERVER_CERTIFICATE: z.stringbool().default(false),
   SEED_PASSWORD: z.string().min(8).default("Demo@12345"),
+  // Xác thực (PRD v3.0, mục 3.5, 11.1)
+  JWT_ACCESS_SECRET: z.string().min(32, "JWT_ACCESS_SECRET cần ít nhất 32 ký tự ngẫu nhiên"),
+  ACCESS_TOKEN_TTL_MIN: z.coerce.number().int().positive().default(15),
+  REFRESH_TOKEN_TTL_DAYS: z.coerce.number().int().positive().default(7),
+  // Bật khi chạy HTTPS (staging/production); dev dùng http://localhost nên để false.
+  COOKIE_SECURE: z.stringbool().default(false),
+  LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+  // Presence (PRD v3.0, mục 3.7, Phụ lục C): chu kỳ dọn phiên mất nhịp tim.
+  PRESENCE_CLEANUP_INTERVAL_SEC: z.coerce.number().int().positive().default(30),
+  // Link mời tham gia (mã QR trên Web Admin): cổng Web User, hoặc địa chỉ công khai nếu đã triển khai.
+  WEB_USER_PORT: z.coerce.number().int().positive().default(5173),
+  WEB_USER_PUBLIC_URL: z.url().optional(),
   CORS_ORIGINS: z
     .string()
     .default("http://localhost:5173,http://localhost:5174")
@@ -26,6 +38,10 @@ function load(): Env {
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `  - ${i.path.join(".")}: ${i.message}`).join("\n");
     console.error(`Biến môi trường không hợp lệ (xem api/.env.example):\n${issues}`);
+    process.exit(1);
+  }
+  if (parsed.data.NODE_ENV === "production" && parsed.data.JWT_ACCESS_SECRET.startsWith("doi-chuoi-nay")) {
+    console.error("JWT_ACCESS_SECRET vẫn là giá trị mẫu – hãy đổi trước khi chạy production.");
     process.exit(1);
   }
   return parsed.data;

@@ -2,22 +2,16 @@ import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { createApp } from "../src/app.js";
 import { migrate } from "../src/db/migrate.js";
-import { closePool, dbConfig, getPool, sql } from "../src/db/pool.js";
+import { closePool, getPool, sql } from "../src/db/pool.js";
 import { seed } from "../src/db/seed.js";
+import { resetTestDb, runDbTests } from "./helpers/testDb.js";
 
 // Chạy: RUN_DB_TESTS=1 DB_PASSWORD=... npm test  (cần SQL Server đang chạy)
-describe.skipIf(process.env.RUN_DB_TESTS !== "1")("SQL Server – migration, seed, presence", () => {
+describe.skipIf(!runDbTests)("SQL Server – migration, seed, presence", () => {
   beforeAll(async () => {
-    const master = await new sql.ConnectionPool(dbConfig("master")).connect();
-    await master.request().batch(`
-      IF DB_ID('ThuyetMinhDB_test') IS NOT NULL
-      BEGIN
-        ALTER DATABASE ThuyetMinhDB_test SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-        DROP DATABASE ThuyetMinhDB_test;
-      END`);
-    await master.close();
-    await migrate(() => {});
-    await seed(() => {});
+    // closePool() trước: file test khác có thể đã mở pool tới CSDL sắp bị xóa.
+    await closePool();
+    await resetTestDb();
   }, 120_000);
 
   afterAll(async () => {
@@ -83,6 +77,6 @@ describe.skipIf(process.env.RUN_DB_TESTS !== "1")("SQL Server – migration, see
   it("GET /health/ready báo đã kết nối CSDL", async () => {
     const res = await request(createApp()).get("/health/ready");
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ status: "ready", database: "ok", migrations: 2 });
+    expect(res.body).toMatchObject({ status: "ready", database: "ok", migrations: 3 });
   });
 });
