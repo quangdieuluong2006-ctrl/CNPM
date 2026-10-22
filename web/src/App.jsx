@@ -1,4 +1,7 @@
-import { Fragment, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
+import { useAuth } from "./auth/useAuth";
+import AuthPage from "./pages/AuthPage";
+import { usePresence } from "./realtime/usePresence";
 import UploadPage from "./pages/UploadPage";
 import LanguagePage from "./pages/LanguagePage";
 import ProgressPage from "./pages/ProgressPage";
@@ -54,7 +57,40 @@ function Stepper({ current }) {
   );
 }
 
+// Chưa đăng nhập thì chỉ thấy trang Đăng nhập/Đăng ký; đăng nhập xong mới vào luồng thuyết minh.
 export default function App() {
+  const { status } = useAuth();
+  if (status === "loading") return <p className="note">Đang kiểm tra phiên đăng nhập…</p>;
+  if (status === "guest") return <AuthPage />;
+  return <DubbingApp />;
+}
+
+function UserBar() {
+  const { user, logout } = useAuth();
+  const onRevoked = useCallback(
+    (reason) => {
+      if (reason === "ACCOUNT_LOCKED") alert("Tài khoản của bạn đã bị khóa bởi quản trị viên.");
+      void logout();
+    },
+    [logout],
+  );
+  const online = usePresence(true, onRevoked);
+
+  return (
+    <div className="user-bar">
+      <span className={`online-dot ${online ? "on" : ""}`} aria-hidden="true" />
+      <span className="user-bar-name">
+        {user.fullName}
+        <span className="user-bar-status">{online ? "Đang trực tuyến" : "Đang kết nối…"}</span>
+      </span>
+      <button className="btn-link" onClick={() => void logout()}>
+        Đăng xuất
+      </button>
+    </div>
+  );
+}
+
+function DubbingApp() {
   const [step, setStep] = useState("upload");
   const [file, setFile] = useState(null);
   const [languages, setLanguages] = useState([]);
@@ -141,6 +177,7 @@ export default function App() {
           </button>
         )}
       </header>
+      <UserBar />
       {step !== "history" && <Stepper current={step} />}
       {page}
     </>

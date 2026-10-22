@@ -69,3 +69,20 @@ describe("mất kết nối CSDL", () => {
     expect(res.body.error.code).toBe("DB_UNAVAILABLE");
   });
 });
+
+describe("chọn card mạng cho mã QR", () => {
+  it("Wi-Fi thật đứng trên card ảo (Radmin VPN, WSL, Docker)", async () => {
+    const { __test } = await import("../src/modules/admin/joinLink.js");
+    const cards = [
+      ["Radmin VPN", "26.10.20.30"],
+      ["vEthernet (WSL (Hyper-V firewall))", "172.25.144.1"],
+      ["br-c3931e6eb5f5", "172.18.0.1"],
+      ["Ethernet", "192.168.0.20"],
+      ["Wi-Fi", "192.168.1.15"],
+    ] as const;
+    const ranked = [...cards].sort((a, b) => __test.score(b[0], b[1]) - __test.score(a[0], a[1]));
+    expect(ranked[0]![0]).toBe("Wi-Fi");
+    expect(ranked[1]![0]).toBe("Ethernet");
+    expect(ranked.slice(-3).map((c) => c[0])).not.toContain("Wi-Fi");
+  });
+});

@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { InviteQrDialog } from "../components/InviteQrDialog";
 import { useRealtime } from "../features/realtime/RealtimeProvider";
 import { apiGet } from "../lib/api";
 import { CLIENT_LABEL, clockTime, timeAgo } from "../lib/format";
@@ -11,6 +12,7 @@ export function ActiveUsersPage() {
   const [onlyUsers, setOnlyUsers] = useState(true);
   const [client, setClient] = useState<ClientType | "">("");
   const [now, setNow] = useState(() => Date.now());
+  const [showQr, setShowQr] = useState(false);
 
   const params = new URLSearchParams({ role: onlyUsers ? "user" : "all" });
   if (client) params.set("clientType", client);
@@ -39,13 +41,23 @@ export function ActiveUsersPage() {
             Có phiên chưa đóng và gửi nhịp tim trong 60 giây gần nhất. Một người mở nhiều tab/thiết bị chỉ tính 1.
           </p>
         </div>
+        <div className="flex items-center gap-4">
+        <button
+          onClick={() => setShowQr(true)}
+          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"
+        >
+          Mời tham gia (QR)
+        </button>
         <div className="rounded-xl border border-emerald-300 bg-white px-6 py-4 text-center shadow-sm">
           <p className="text-sm text-slate-500">Đang hoạt động</p>
           <p data-testid="active-count" className="text-5xl font-bold text-emerald-700">
             {data ? data.count : "–"}
           </p>
         </div>
+        </div>
       </div>
+
+      {showQr && <InviteQrDialog onClose={() => setShowQr(false)} />}
 
       {!connected && (
         <div className="rounded-md bg-amber-50 px-4 py-2 text-sm text-amber-800">

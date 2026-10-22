@@ -552,3 +552,107 @@ video {
   font-weight: 600;
   color: var(--primary);
 }
+
+/* ===== Đăng nhập / Đăng ký và trạng thái trực tuyến ===== */
+.auth-wrap {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.auth-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.auth-tabs {
+  margin-bottom: 4px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.field-hint {
+  font-weight: 400;
+  color: var(--muted);
+}
+
+.input {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px; /* ≥ 16px để iPhone không tự phóng to khi gõ */
+}
+
+.input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
+.field-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.user-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: -6px 0 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+  font-size: 14px;
+}
+
+.user-bar-name {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.user-bar-status {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.user-bar .btn-link {
+  margin-left: auto;
+}
+
+.online-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+
+.online-dot.on {
+  background: #10b981;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18);
+}

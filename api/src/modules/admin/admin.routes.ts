@@ -4,6 +4,7 @@ import { requireAuth, requireRole } from "../../middlewares/auth.js";
 import { clientTypeSchema } from "../auth/auth.schemas.js";
 import * as presenceRepo from "../presence/presence.repository.js";
 import * as adminRepo from "./admin.repository.js";
+import { joinLinks } from "./joinLink.js";
 
 // Mọi route /admin/* yêu cầu đăng nhập và vai trò admin (PRD v3.0, mục 11.1).
 export const adminRouter = Router();
@@ -56,4 +57,9 @@ adminRouter.get("/admin/presence", async (req, res) => {
     })),
     ts: new Date().toISOString(),
   });
+});
+
+// Link + mã QR "Mời tham gia": người dùng quét bằng điện thoại để mở trang Đăng ký của Web User.
+adminRouter.get("/admin/join-link", (_req, res) => {
+  res.json({ links: joinLinks() });
 });

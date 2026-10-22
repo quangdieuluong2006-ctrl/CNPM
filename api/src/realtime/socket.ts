@@ -23,8 +23,13 @@ function handshakeError(code: string, message: string): Error {
   return err;
 }
 
+// Giống "trust proxy loopback" của Express: chỉ đọc X-Forwarded-For khi kết nối đến từ proxy cục bộ.
 function clientIp(socket: Socket): string {
-  return socket.handshake.address;
+  const addr = socket.handshake.address;
+  const isLoopback = addr === "127.0.0.1" || addr === "::1" || addr === "::ffff:127.0.0.1";
+  const forwarded = socket.handshake.headers["x-forwarded-for"];
+  if (isLoopback && typeof forwarded === "string" && forwarded !== "") return forwarded.split(",")[0]!.trim();
+  return addr;
 }
 
 // Khởi tạo Socket.IO trên cùng HTTP server với Express (PRD v3.0, mục 7.5, 8.4).
