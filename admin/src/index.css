@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+/* Tailwind v4 dùng màu chữ làm màu viền mặc định → đặt lại về xám nhạt như v3 cho giao diện quản trị */
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-slate-200);
+  }
+}
