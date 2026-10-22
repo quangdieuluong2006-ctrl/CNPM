@@ -20,6 +20,8 @@ const schema = z.object({
   // Bật khi chạy HTTPS (staging/production); dev dùng http://localhost nên để false.
   COOKIE_SECURE: z.stringbool().default(false),
   LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+  // Presence (PRD v3.0, mục 3.7, Phụ lục C): chu kỳ dọn phiên mất nhịp tim.
+  PRESENCE_CLEANUP_INTERVAL_SEC: z.coerce.number().int().positive().default(30),
   CORS_ORIGINS: z
     .string()
     .default("http://localhost:5173,http://localhost:5174")
