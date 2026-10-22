@@ -1,6 +1,34 @@
 import { useState } from "react";
 import { useAuth } from "../auth/useAuth";
+import { IconEye, IconEyeOff, IconGlobe, IconMic, IconSubtitle } from "../components/icons";
+import Logo from "../components/Logo";
 import { errorMessage } from "../lib/api";
+
+const FEATURES = [
+  { icon: IconGlobe, title: "10 ngôn ngữ", text: "Việt, Anh, Nhật, Hàn, Trung, Pháp, Đức…" },
+  { icon: IconMic, title: "Giọng đọc tự nhiên", text: "Chọn giọng nam hoặc nữ, giữ nhạc nền gốc" },
+  { icon: IconSubtitle, title: "Kèm phụ đề", text: "Xuất video lồng tiếng và tệp phụ đề" },
+];
+
+// Ô mật khẩu có nút hiện/ẩn
+function PasswordInput({ value, onChange, autoComplete }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <div className="input-wrap">
+      <input
+        className="input"
+        type={shown ? "text" : "password"}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={onChange}
+        required
+      />
+      <button type="button" className="input-addon" onClick={() => setShown((v) => !v)} aria-label={shown ? "Ẩn mật khẩu" : "Hiện mật khẩu"}>
+        {shown ? <IconEyeOff size={18} /> : <IconEye size={18} />}
+      </button>
+    </div>
+  );
+}
 
 // Trang Đăng nhập / Đăng ký (UC-01, UC-02). Mã QR trên Web Admin mở thẳng /register.
 export default function AuthPage() {
@@ -49,70 +77,103 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="auth-wrap">
-      <div className="auth-brand">
-        <div className="logo">🎬</div>
-        <div>
-          <div className="app-title">Thuyết minh đa ngôn ngữ</div>
-          <div className="app-sub">Lồng tiếng video tự động</div>
+    <div className="auth-page">
+      <section className="auth-hero">
+        <div className="brand brand-light">
+          <Logo size={40} />
+          <div className="brand-text">
+            <span className="brand-name">Thuyết minh</span>
+            <span className="brand-sub">đa ngôn ngữ</span>
+          </div>
         </div>
-      </div>
+        <h1 className="hero-title">Lồng tiếng video sang ngôn ngữ khác chỉ với vài thao tác</h1>
+        <p className="hero-desc">Tải video lên, chọn ngôn ngữ đích – hệ thống tự nhận dạng lời nói, dịch và đọc lại bằng giọng tự nhiên.</p>
+        <ul className="hero-features">
+          {FEATURES.map(({ icon: Icon, title, text }) => (
+            <li key={title}>
+              <span className="hero-feature-icon">
+                <Icon size={20} />
+              </span>
+              <span>
+                <strong>{title}</strong>
+                <small>{text}</small>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
 
-      <form className="card auth-card" onSubmit={onSubmit} noValidate>
-        <div className="tabs auth-tabs">
-          <button type="button" className={`tab ${!isRegister ? "active" : ""}`} onClick={() => switchMode("login")}>
-            Đăng nhập
-          </button>
-          <button type="button" className={`tab ${isRegister ? "active" : ""}`} onClick={() => switchMode("register")}>
-            Đăng ký
-          </button>
-        </div>
+      <section className="auth-panel">
+        <form className="auth-form" onSubmit={onSubmit} noValidate>
+          <div>
+            <h2 className="auth-title">{isRegister ? "Tạo tài khoản" : "Chào mừng trở lại"}</h2>
+            <p className="auth-desc">{isRegister ? "Miễn phí 60 phút xử lý mỗi tháng." : "Đăng nhập để tiếp tục thuyết minh video."}</p>
+          </div>
 
-        {isRegister && (
-          <label className="field">
-            <span>Họ tên</span>
-            <input className="input" autoComplete="name" value={form.fullName} onChange={set("fullName")} required />
-          </label>
-        )}
-        <label className="field">
-          <span>Email</span>
-          <input className="input" type="email" autoComplete="email" inputMode="email" value={form.email} onChange={set("email")} required />
-        </label>
-        <label className="field">
-          <span>Mật khẩu</span>
-          <input
-            className="input"
-            type="password"
-            autoComplete={isRegister ? "new-password" : "current-password"}
-            value={form.password}
-            onChange={set("password")}
-            required
-          />
-          {isRegister && <small className="field-hint">Ít nhất 8 ký tự, có cả chữ và số</small>}
-        </label>
-        {isRegister && (
-          <>
+          <div className="segmented" role="tablist">
+            <button type="button" role="tab" aria-selected={!isRegister} className={!isRegister ? "active" : ""} onClick={() => switchMode("login")}>
+              Đăng nhập
+            </button>
+            <button type="button" role="tab" aria-selected={isRegister} className={isRegister ? "active" : ""} onClick={() => switchMode("register")}>
+              Đăng ký
+            </button>
+          </div>
+
+          {isRegister && (
             <label className="field">
-              <span>Xác nhận mật khẩu</span>
-              <input className="input" type="password" autoComplete="new-password" value={form.confirm} onChange={set("confirm")} required />
+              <span>Họ tên</span>
+              <input className="input" autoComplete="name" placeholder="Nguyễn Văn A" value={form.fullName} onChange={set("fullName")} required />
             </label>
-            <label className="field-check">
-              <input type="checkbox" checked={form.agree} onChange={set("agree")} />
-              <span>Tôi đồng ý với Điều khoản sử dụng</span>
-            </label>
-          </>
-        )}
+          )}
+          <label className="field">
+            <span>Email</span>
+            <input
+              className="input"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="ban@vidu.com"
+              value={form.email}
+              onChange={set("email")}
+              required
+            />
+          </label>
+          <label className="field">
+            <span>Mật khẩu</span>
+            <PasswordInput value={form.password} onChange={set("password")} autoComplete={isRegister ? "new-password" : "current-password"} />
+            {isRegister && <small className="field-hint">Ít nhất 8 ký tự, có cả chữ và số</small>}
+          </label>
+          {isRegister && (
+            <>
+              <label className="field">
+                <span>Xác nhận mật khẩu</span>
+                <PasswordInput value={form.confirm} onChange={set("confirm")} autoComplete="new-password" />
+              </label>
+              <label className="field-check">
+                <input type="checkbox" checked={form.agree} onChange={set("agree")} />
+                <span>Tôi đồng ý với Điều khoản sử dụng</span>
+              </label>
+            </>
+          )}
 
-        {error && (
-          <p className="error-msg" role="alert">
-            {error}
+          {error && (
+            <p className="form-error" role="alert">
+              {error}
+            </p>
+          )}
+
+          <button className="btn btn-lg auth-submit" type="submit" disabled={submitting || (isRegister && !form.agree)}>
+            {submitting ? "Đang xử lý…" : isRegister ? "Tạo tài khoản" : "Đăng nhập"}
+          </button>
+
+          <p className="auth-switch">
+            {isRegister ? "Đã có tài khoản? " : "Chưa có tài khoản? "}
+            <button type="button" className="btn-link" onClick={() => switchMode(isRegister ? "login" : "register")}>
+              {isRegister ? "Đăng nhập" : "Đăng ký ngay"}
+            </button>
           </p>
-        )}
-
-        <button className="btn btn-lg auth-submit" type="submit" disabled={submitting || (isRegister && !form.agree)}>
-          {submitting ? "Đang xử lý…" : isRegister ? "Tạo tài khoản" : "Đăng nhập"}
-        </button>
-      </form>
+        </form>
+      </section>
     </div>
   );
 }

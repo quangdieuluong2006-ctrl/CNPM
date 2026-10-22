@@ -1,5 +1,8 @@
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth/useAuth";
+import { IconCheck, IconHistory } from "./components/icons";
+import Logo from "./components/Logo";
+import UserMenu from "./components/UserMenu";
 import AuthPage from "./pages/AuthPage";
 import { usePresence } from "./realtime/usePresence";
 import UploadPage from "./pages/UploadPage";
@@ -65,7 +68,8 @@ export default function App() {
   return <DubbingApp />;
 }
 
-function UserBar() {
+// Thanh trên cùng: logo, nút Lịch sử, ảnh đại diện + trạng thái trực tuyến (thay cho khung người dùng riêng).
+function TopBar({ historyCount, onHistory, showHistory }) {
   const { user, logout } = useAuth();
   const onRevoked = useCallback(
     (reason) => {
@@ -77,14 +81,55 @@ function UserBar() {
   const online = usePresence(true, onRevoked);
 
   return (
-    <div className="user-bar">
-      <span className={`online-dot ${online ? "on" : ""}`} aria-hidden="true" />
-      <span className="user-bar-name">
-        {user.fullName}
-        <span className="user-bar-status">{online ? "Đang trực tuyến" : "Đang kết nối…"}</span>
+    <header className="topbar">
+      <div className="topbar-inner">
+        <div className="brand">
+          <Logo size={34} />
+          <div className="brand-text">
+            <span className="brand-name">Thuyết minh</span>
+            <span className="brand-sub">đa ngôn ngữ</span>
+          </div>
+        </div>
+        <div className="topbar-actions">
+          {showHistory && (
+            <button className="icon-btn" onClick={onHistory} aria-label={`Lịch sử (${historyCount})`}>
+              <IconHistory size={20} />
+              <span className="icon-btn-label">Lịch sử</span>
+              {historyCount > 0 && <span className="badge">{historyCount}</span>}
+            </button>
+          )}
+          <UserMenu user={user} online={online} onLogout={() => void logout()} />
+        </div>
+      </div>
+    </header>
+  );
+}
+
+// Lời chào ngắn sau khi đăng nhập/đăng ký – người quét QR thấy ngay mình đã vào hệ thống.
+function WelcomeToast() {
+  const { user, welcome, dismissWelcome } = useAuth();
+  useEffect(() => {
+    if (!welcome) return undefined;
+    const t = setTimeout(dismissWelcome, 6000);
+    return () => clearTimeout(t);
+  }, [welcome, dismissWelcome]);
+  if (!welcome) return null;
+  const firstName = user.fullName.trim().split(/\s+/).pop();
+  return (
+    <div className="toast" role="status">
+      <span className="toast-icon">
+        <IconCheck size={18} />
       </span>
-      <button className="btn-link" onClick={() => void logout()}>
-        Đăng xuất
+      <div>
+        <div className="toast-title">
+          {welcome === "register" ? `Chào mừng ${firstName}!` : `Chào ${firstName}!`}
+        </div>
+        <div className="toast-sub">
+          {welcome === "register" ? "Tài khoản đã được tạo – bạn đang trực tuyến." : "Bạn đang trực tuyến."}
+        </div>
+      </div>
+      <button className="toast-close" onClick={dismissWelcome} aria-label="Đóng">
+        ×
       </button>
     </div>
   );
@@ -162,24 +207,12 @@ function DubbingApp() {
 
   return (
     <>
-      <header className="app-header">
-        <div className="logo">🎬</div>
-        <div>
-          <div className="app-title">Thuyết minh đa ngôn ngữ</div>
-          <div className="app-sub">Lồng tiếng video tự động</div>
-        </div>
-        {step !== "progress" && step !== "history" && (
-          <button
-            className="btn btn-secondary header-history"
-            onClick={() => setStep("history")}
-          >
-            Lịch sử ({history.length})
-          </button>
-        )}
-      </header>
-      <UserBar />
-      {step !== "history" && <Stepper current={step} />}
-      {page}
+      <TopBar historyCount={history.length} onHistory={() => setStep("history")} showHistory={step !== "progress" && step !== "history"} />
+      <main className="app-shell">
+        <WelcomeToast />
+        {step !== "history" && <Stepper current={step} />}
+        {page}
+      </main>
     </>
   );
 }
