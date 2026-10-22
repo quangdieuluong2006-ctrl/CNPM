@@ -38,6 +38,8 @@ Tài liệu đặc tả: **PRD v3.0** (Backend + SQL Server, Web User, Web Admin
 3. **Web User**: `cd web` → `npm install` → `npm run dev` → http://localhost:5173
 4. **Web Admin**: `cd admin` → `npm install` → `npm run dev` → http://localhost:5174, đăng nhập `admin@demo.vn` / `Demo@12345`
 
+Tài liệu API (Swagger): **http://localhost:3000/api/docs** – xem và gọi thử mọi endpoint.
+
 Chi tiết: `api/README.md`, `web/README.md`, `admin/README.md`.
 
 ## Kịch bản demo: "Làm sao biết có 4 người dùng đang hoạt động?"

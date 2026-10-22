@@ -7,6 +7,7 @@ import { env } from "./config/env.js";
 import { logger } from "./lib/logger.js";
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
 import { requestId } from "./middlewares/requestId.js";
+import { docsRouter } from "./docs/docs.routes.js";
 import { adminRouter } from "./modules/admin/admin.routes.js";
 import { authRouter } from "./modules/auth/auth.routes.js";
 import { healthRouter } from "./modules/health/health.routes.js";
@@ -32,6 +33,7 @@ export function createApp(opts: AppOptions = {}) {
   app.use(cookieParser());
 
   app.use(healthRouter);
+  app.use(docsRouter);
   app.use("/api/v1", authRouter({ loginRateLimitMax: opts.loginRateLimitMax }), meRouter, presenceRouter, adminRouter);
   // Các module tiếp theo gắn dưới /api/v1: uploads, jobs…
 

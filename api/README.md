@@ -49,6 +49,17 @@ SELECT * FROM dbo.v_active_users WHERE role = 'user';
 EXEC dbo.sp_admin_dashboard_stats;
 ```
 
+## Tài liệu API (Swagger)
+
+Khi API đang chạy, mở **http://localhost:3000/api/docs** để xem và gọi thử mọi endpoint
+(đặc tả thô: `/api/docs/openapi.json`, nguồn: `src/docs/openapi.ts`).
+
+1. Mở `POST /api/v1/auth/login` → **Try it out** → gửi `{"email":"admin@demo.vn","password":"Demo@12345","clientType":"mobile"}` → **Execute**.
+2. Sao chép `accessToken` trong kết quả → bấm **Authorize** (góc phải) → dán → **Authorize**.
+3. Gọi các API cần đăng nhập, ví dụ `GET /api/v1/admin/presence` (người dùng đang hoạt động).
+
+Thêm hoặc sửa route thì cập nhật `src/docs/openapi.ts`; test `tests/openapi.test.ts` sẽ báo lỗi nếu tài liệu lệch với route thật.
+
 ## API xác thực (FE-01)
 
 Mọi endpoint nghiệp vụ nằm dưới `/api/v1`. Body gửi `clientType` là `web` (mặc định), `admin` hoặc `mobile`.
