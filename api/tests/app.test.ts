@@ -34,3 +34,22 @@ describe("splitBatches", () => {
     expect(splitBatches(sql)).toEqual(["CREATE TABLE a (id INT);", "SELECT 'GOOD' AS go_col;"]);
   });
 });
+
+describe("kiểm tra đầu vào API xác thực (không cần CSDL)", () => {
+  it("đăng nhập thiếu email → 400 VALIDATION_ERROR", async () => {
+    const res = await request(app).post("/api/v1/auth/login").send({ password: "x" });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("clientType không hợp lệ → 400", async () => {
+    const res = await request(app).post("/api/v1/auth/refresh").send({ clientType: "tv" });
+    expect(res.status).toBe(400);
+  });
+
+  it("GET /api/v1/me không có token → 401 AUTH_REQUIRED", async () => {
+    const res = await request(app).get("/api/v1/me");
+    expect(res.status).toBe(401);
+    expect(res.body.error.code).toBe("AUTH_REQUIRED");
+  });
+});

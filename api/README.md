@@ -48,3 +48,30 @@ Tài khoản mẫu: `admin@demo.vn`, `user1@demo.vn` … `user6@demo.vn`, mật 
 SELECT * FROM dbo.v_active_users WHERE role = 'user';
 EXEC dbo.sp_admin_dashboard_stats;
 ```
+
+## API xác thực (FE-01)
+
+Mọi endpoint nghiệp vụ nằm dưới `/api/v1`. Body gửi `clientType` là `web` (mặc định), `admin` hoặc `mobile`.
+
+| Endpoint | Mô tả | Lỗi thường gặp |
+|---|---|---|
+| `POST /auth/register` | `{email, password, fullName, locale?, clientType?}` → 201 | 409 `EMAIL_TAKEN`, 400 `VALIDATION_ERROR` |
+| `POST /auth/login` | `{email, password, clientType?}` → `{accessToken, expiresIn, user, …}` | 401 `AUTH_INVALID_CREDENTIALS`, 403 `ACCOUNT_LOCKED`, 403 `FORBIDDEN` (user thường vào Admin), 429 `RATE_LIMITED` |
+| `POST /auth/refresh` | Cấp access token mới, **xoay vòng** refresh token | 401 `AUTH_REFRESH_INVALID`, 403 `CSRF_INVALID` |
+| `POST /auth/logout` | Thu hồi refresh token → 204 | |
+| `GET /me` | Hồ sơ + gói, cần `Authorization: Bearer <accessToken>` | 401 `AUTH_REQUIRED` / `AUTH_TOKEN_EXPIRED` / `AUTH_TOKEN_INVALID` |
+
+Cách client giữ phiên:
+
+- **Web User / Web Admin**: refresh token nằm trong cookie HttpOnly `rt_web` / `rt_admin` (JavaScript không đọc được). Response trả `csrfToken` (cũng có trong cookie `csrf_web` / `csrf_admin`); khi gọi `/auth/refresh` và `/auth/logout` phải gửi header `X-CSRF-Token` với giá trị này và bật `credentials: "include"` (fetch) hoặc `withCredentials: true` (axios).
+- **Mobile**: response trả `refreshToken` trong body; lưu bằng `expo-secure-store`, gửi lại trong body `{clientType: "mobile", refreshToken}`.
+- Access token (15 phút) chỉ giữ trong bộ nhớ. Gặp 401 `AUTH_TOKEN_EXPIRED` thì gọi `/auth/refresh` **một lần** cho mọi request đang chờ.
+- Refresh token đã thu hồi mà bị dùng lại → hệ thống coi là bị đánh cắp, thu hồi mọi phiên của user đó (ghi `auth.refresh_reuse` vào `activity_logs`).
+
+Thử nhanh bằng curl:
+
+```bash
+curl -X POST localhost:3000/api/v1/auth/login -H "Content-Type: application/json" \
+  -d '{"email":"user1@demo.vn","password":"Demo@12345","clientType":"mobile"}'
+curl localhost:3000/api/v1/me -H "Authorization: Bearer <accessToken>"
+```
