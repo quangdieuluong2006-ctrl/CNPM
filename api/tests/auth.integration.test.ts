@@ -121,6 +121,14 @@ describe.skipIf(!runDbTests)("API xác thực (FE-01) trên SQL Server", () => {
       expect(res.body.error.code).toBe("RATE_LIMITED");
       expect(Number(res.headers["retry-after"])).toBeGreaterThan(0);
     });
+
+    it("đăng nhập thành công không bị tính vào giới hạn", async () => {
+      const limited = createApp({ loginRateLimitMax: 2 });
+      for (let i = 0; i < 4; i++) {
+        const res = await request(limited).post("/api/v1/auth/login").send({ email: "user5@demo.vn", password: SEED_PASSWORD });
+        expect(res.status).toBe(200);
+      }
+    });
   });
 
   describe("GET /api/v1/me", () => {

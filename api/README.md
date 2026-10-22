@@ -56,7 +56,7 @@ Mọi endpoint nghiệp vụ nằm dưới `/api/v1`. Body gửi `clientType` l�
 | Endpoint | Mô tả | Lỗi thường gặp |
 |---|---|---|
 | `POST /auth/register` | `{email, password, fullName, locale?, clientType?}` → 201 | 409 `EMAIL_TAKEN`, 400 `VALIDATION_ERROR` |
-| `POST /auth/login` | `{email, password, clientType?}` → `{accessToken, expiresIn, user, …}` | 401 `AUTH_INVALID_CREDENTIALS`, 403 `ACCOUNT_LOCKED`, 403 `FORBIDDEN` (user thường vào Admin), 429 `RATE_LIMITED` |
+| `POST /auth/login` | `{email, password, clientType?}` → `{accessToken, expiresIn, user, …}` | 401 `AUTH_INVALID_CREDENTIALS`, 403 `ACCOUNT_LOCKED`, 403 `FORBIDDEN` (user thường vào Admin), 429 `RATE_LIMITED` (quá 10 lần **sai** / 15 phút / IP) |
 | `POST /auth/refresh` | Cấp access token mới, **xoay vòng** refresh token | 401 `AUTH_REFRESH_INVALID`, 403 `CSRF_INVALID` |
 | `POST /auth/logout` | Thu hồi refresh token → 204 | |
 | `GET /me` | Hồ sơ + gói, cần `Authorization: Bearer <accessToken>` | 401 `AUTH_REQUIRED` / `AUTH_TOKEN_EXPIRED` / `AUTH_TOKEN_INVALID` |

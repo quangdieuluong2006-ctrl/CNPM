@@ -25,10 +25,12 @@ function refreshTokenFrom(req: Request, clientType: ClientType, bodyToken: strin
 export function authRouter(opts: { loginRateLimitMax?: number } = {}) {
   const router = Router();
 
-  // Chống dò mật khẩu: tối đa N lần đăng nhập / 15 phút / IP (PRD v3.0, mục 11.1).
+  // Chống dò mật khẩu: tối đa N lần đăng nhập THẤT BẠI / 15 phút / IP (PRD v3.0, mục 11.1).
+  // Đăng nhập thành công không bị đếm, để nhiều tài khoản demo trên cùng máy không tự khóa nhau.
   const loginLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     limit: opts.loginRateLimitMax ?? env.LOGIN_RATE_LIMIT_MAX,
+    skipSuccessfulRequests: true,
     standardHeaders: "draft-7",
     legacyHeaders: false,
     handler: (_req, res, next) => {

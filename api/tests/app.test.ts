@@ -53,3 +53,19 @@ describe("kiểm tra đầu vào API xác thực (không cần CSDL)", () => {
     expect(res.body.error.code).toBe("AUTH_REQUIRED");
   });
 });
+
+describe("mất kết nối CSDL", () => {
+  it("lỗi kết nối SQL Server → 503 DB_UNAVAILABLE", async () => {
+    const { default: express } = await import("express");
+    const { default: sql } = await import("mssql");
+    const { errorHandler } = await import("../src/middlewares/errorHandler.js");
+    const mini = express();
+    mini.get("/x", () => {
+      throw new sql.ConnectionError("Failed to connect to localhost:1433", "ESOCKET");
+    });
+    mini.use(errorHandler);
+    const res = await request(mini).get("/x");
+    expect(res.status).toBe(503);
+    expect(res.body.error.code).toBe("DB_UNAVAILABLE");
+  });
+});
