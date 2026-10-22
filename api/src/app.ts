@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
@@ -6,10 +7,16 @@ import { env } from "./config/env.js";
 import { logger } from "./lib/logger.js";
 import { errorHandler, notFound } from "./middlewares/errorHandler.js";
 import { requestId } from "./middlewares/requestId.js";
+import { authRouter } from "./modules/auth/auth.routes.js";
 import { healthRouter } from "./modules/health/health.routes.js";
+import { meRouter } from "./modules/users/me.routes.js";
+
+export interface AppOptions {
+  loginRateLimitMax?: number; // test dùng giá trị nhỏ để kiểm tra 429
+}
 
 // Tạo Express app tách khỏi server.ts để test bằng supertest không cần mở cổng.
-export function createApp() {
+export function createApp(opts: AppOptions = {}) {
   const app = express();
   app.disable("x-powered-by");
   app.use(requestId);
@@ -17,9 +24,11 @@ export function createApp() {
   app.use(helmet());
   app.use(cors({ origin: env.CORS_ORIGINS, credentials: true }));
   app.use(express.json({ limit: "1mb" }));
+  app.use(cookieParser());
 
   app.use(healthRouter);
-  // Các module nghiệp vụ gắn dưới /api/v1 ở những ngày tiếp theo (auth, presence, jobs, admin…).
+  app.use("/api/v1", authRouter({ loginRateLimitMax: opts.loginRateLimitMax }), meRouter);
+  // Các module tiếp theo gắn dưới /api/v1: presence, uploads, jobs, admin…
 
   app.use(notFound);
   app.use(errorHandler);

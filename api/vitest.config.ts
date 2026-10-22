@@ -13,6 +13,8 @@ export default defineConfig({
       DB_USER: process.env.DB_USER ?? "sa",
       DB_PASSWORD: process.env.DB_PASSWORD ?? "chua-dat-mat-khau",
       DB_TRUST_SERVER_CERTIFICATE: "true",
+      JWT_ACCESS_SECRET: "test-secret-chi-dung-cho-kiem-thu-0123456789",
+      LOGIN_RATE_LIMIT_MAX: "1000",
     },
   },
 });
