@@ -22,6 +22,9 @@ const schema = z.object({
   LOGIN_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   // Presence (PRD v3.0, mục 3.7, Phụ lục C): chu kỳ dọn phiên mất nhịp tim.
   PRESENCE_CLEANUP_INTERVAL_SEC: z.coerce.number().int().positive().default(30),
+  // Link mời tham gia (mã QR trên Web Admin): cổng Web User, hoặc địa chỉ công khai nếu đã triển khai.
+  WEB_USER_PORT: z.coerce.number().int().positive().default(5173),
+  WEB_USER_PUBLIC_URL: z.url().optional(),
   CORS_ORIGINS: z
     .string()
     .default("http://localhost:5173,http://localhost:5174")

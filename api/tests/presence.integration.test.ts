@@ -180,6 +180,12 @@ describe.skipIf(!runDbTests)("Presence – người dùng đang hoạt động (
     expect((await presence(adminToken)).users.map((u) => u.email)).toEqual(["user6@demo.vn"]);
   });
 
+  it("GET /admin/join-link trả link /register của Web User", async () => {
+    const res = await request(app).get("/api/v1/admin/join-link").set("Authorization", `Bearer ${adminToken}`);
+    expect(res.status).toBe(200);
+    for (const l of res.body.links as { url: string }[]) expect(l.url).toMatch(/^http:\/\/[\d.]+:5173\/register$/);
+  });
+
   it("GET /admin/stats trả 6 số liệu + 7 ngày; user thường gọi /admin/* bị 403 (TC-40)", async () => {
     const res = await request(app).get("/api/v1/admin/stats").set("Authorization", `Bearer ${adminToken}`);
     expect(res.status).toBe(200);
@@ -189,7 +195,7 @@ describe.skipIf(!runDbTests)("Presence – người dùng đang hoạt động (
     expect(Array.isArray(res.body.targetLanguages)).toBe(true);
 
     const userToken = await login("user2@demo.vn");
-    for (const path of ["/api/v1/admin/stats", "/api/v1/admin/presence"]) {
+    for (const path of ["/api/v1/admin/stats", "/api/v1/admin/presence", "/api/v1/admin/join-link"]) {
       const forbidden = await request(app).get(path).set("Authorization", `Bearer ${userToken}`);
       expect(forbidden.status).toBe(403);
       expect(forbidden.body.error.code).toBe("FORBIDDEN");

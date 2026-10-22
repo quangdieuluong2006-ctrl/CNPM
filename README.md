@@ -33,12 +33,35 @@ Tài liệu đặc tả: **PRD v3.0** (Backend + SQL Server, Web User, Web Admin
 
 ## Cách chạy nhanh (Windows)
 
-1. SQL Server 2022 đang chạy, bật đăng nhập `sa` và TCP/IP cổng 1433 (hoặc dùng `docker compose up -d sqlserver`).
-2. API: `cd api` → `copy .env.example .env` (sửa `DB_PASSWORD`) → `npm install` → `npm run db:migrate` → `npm run db:seed` → `npm run dev`
-3. Web Admin: `cd admin` → `npm install` → `npm run dev` → mở http://localhost:5174, đăng nhập `admin@demo.vn` / `Demo@12345`
-4. Trình diễn 4 người dùng đang hoạt động: `cd api` → `npm run demo:presence`
+1. **SQL Server 2022** đang chạy, bật đăng nhập `sa` và TCP/IP cổng 1433 (hoặc dùng `docker compose up -d sqlserver`).
+2. **API**: `cd api` → `copy .env.example .env` (sửa `DB_PASSWORD`) → `npm install` → `npm run db:migrate` → `npm run db:seed` → `npm run dev`
+3. **Web User**: `cd web` → `npm install` → `npm run dev` → http://localhost:5173
+4. **Web Admin**: `cd admin` → `npm install` → `npm run dev` → http://localhost:5174, đăng nhập `admin@demo.vn` / `Demo@12345`
 
-Chi tiết: `api/README.md`, `admin/README.md`.
+Chi tiết: `api/README.md`, `web/README.md`, `admin/README.md`.
+
+## Kịch bản demo: "Làm sao biết có 4 người dùng đang hoạt động?"
+
+**Cách 1 – người thật quét mã QR** (thuyết phục nhất):
+
+1. Chạy đủ API, Web User, Web Admin như trên. Laptop và điện thoại của các bạn dùng **cùng một mạng Wi-Fi**
+   (Wi-Fi trường thường chặn các máy nhìn thấy nhau → phát Wi-Fi từ điện thoại của mình cho chắc).
+2. Mở cổng 5173 trên Windows Firewall (chỉ làm một lần, PowerShell **Run as administrator**):
+   ```powershell
+   New-NetFirewallRule -DisplayName "Thuyet minh - Web User 5173" -Direction Inbound -Protocol TCP -LocalPort 5173 -Action Allow
+   ```
+   Nếu Windows hiện hộp thoại "Allow access" cho Node.js thì bấm **Allow**.
+3. Web Admin → **Người dùng đang hoạt động** → **Mời tham gia (QR)** → chiếu mã QR (chọn đúng mạng Wi-Fi nếu có nhiều mạng).
+4. 4 bạn quét mã → trang Đăng ký mở trên điện thoại → tạo tài khoản → số trên Web Admin tăng 1 → 4 ngay lập tức.
+5. Kiểm chứng trong SSMS: `SELECT * FROM dbo.v_active_users;` và `SELECT * FROM dbo.users ORDER BY id DESC;`
+
+**Cách 2 – script mô phỏng** (khi không có điện thoại): `cd api` → `npm run demo:presence -- 4 --giu`
+(4 tài khoản mẫu vào và **ở lại** tới khi nhấn Ctrl+C).
+
+**Giải thích cơ chế:** mỗi kết nối Socket.IO ghi một dòng `user_sessions`; client gửi nhịp tim 30 giây cập nhật `last_seen_at`;
+"đang hoạt động" = phiên chưa đóng và có nhịp tim trong 60 giây; đếm `DISTINCT user_id` (view `v_active_users`), nên một người
+mở nhiều tab vẫn tính 1; thoát → `disconnected_at`; mất mạng → tác vụ dọn phiên đóng sau 60 giây; mỗi thay đổi đẩy `presence.update`
+tới Web Admin.
 
 ## Cấu trúc thư mục
 

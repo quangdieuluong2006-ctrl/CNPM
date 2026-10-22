@@ -21,6 +21,9 @@ export interface AppOptions {
 export function createApp(opts: AppOptions = {}) {
   const app = express();
   app.disable("x-powered-by");
+  // Chỉ tin X-Forwarded-For khi request đi qua proxy trên chính máy này (Vite dev server),
+  // để req.ip là IP thật của từng điện thoại – dùng cho giới hạn đăng nhập và nhật ký.
+  app.set("trust proxy", "loopback");
   app.use(requestId);
   app.use(pinoHttp({ logger, genReqId: (_req, res) => res.locals.requestId as string }));
   app.use(helmet());

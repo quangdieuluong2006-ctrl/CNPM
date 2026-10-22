@@ -96,4 +96,6 @@ curl localhost:3000/api/v1/me -H "Authorization: Bearer <accessToken>"
 | `GET /admin/presence?role=user\|all&clientType=web\|mobile\|admin` | `{ count, activeUsers, activeUsersAll, users: [{ userId, fullName, email, role, clientTypes, openSessions, onlineSince, lastSeenAt }] }` |
 | `GET /admin/stats` | `{ totalUsers, activeUsers, dailyActiveUsers, jobsToday, jobsProcessing, jobsFailedToday, jobsByDay[7], targetLanguages[] }` |
 
-**Trình diễn nhanh** (không cần giao diện): chạy `npm run dev` ở một terminal, rồi ở terminal khác chạy `npm run demo:presence`. Script cho 4 user lần lượt kết nối, in ra số Web Admin nhận được theo thời gian thực và bảng `GET /admin/presence`, rồi lần lượt thoát.
+**Trình diễn nhanh** (không cần giao diện): chạy `npm run dev` ở một terminal, rồi ở terminal khác chạy `npm run demo:presence`. Script cho 4 user lần lượt kết nối, in ra số Web Admin nhận được theo thời gian thực và bảng `GET /admin/presence`, rồi lần lượt thoát. Thêm `-- 4 --giu` để giữ các user online tới khi nhấn Ctrl+C.
+
+`GET /admin/join-link` (admin): trả link `http://<IP Wi-Fi>:5173/register` để Web Admin tạo mã QR mời người dùng thật tham gia; card Wi-Fi được xếp trước card ảo (VPN, WSL, Docker).

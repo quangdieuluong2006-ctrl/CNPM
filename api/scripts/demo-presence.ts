@@ -2,11 +2,14 @@
 // Cách chạy (API phải đang chạy bằng `npm run dev` ở một terminal khác):
 //   npm run demo:presence          → 4 user lần lượt đăng nhập rồi thoát
 //   npm run demo:presence -- 6     → số user tùy chọn (tối đa 6 tài khoản mẫu)
+//   npm run demo:presence -- 4 --giu → giữ các user online cho tới khi nhấn Ctrl+C (để giải thích, chạy SQL)
 import { io, type Socket } from "socket.io-client";
 
 const API = process.env.DEMO_API_URL ?? `http://localhost:${process.env.PORT ?? 3000}`;
 const PASSWORD = process.env.SEED_PASSWORD ?? "Demo@12345";
-const N = Math.min(Math.max(Number(process.argv[2] ?? 4), 1), 6);
+const args = process.argv.slice(2);
+const KEEP_ONLINE = args.includes("--giu");
+const N = Math.min(Math.max(Number(args.find((a) => /^\d+$/.test(a)) ?? 4), 1), 6);
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const emailById = new Map<number, string>();
@@ -63,6 +66,15 @@ async function main() {
   users.push(await connect(await login("user1@demo.vn", "web"), "web"));
   await sleep(1200);
   await printList(adminToken);
+
+  if (KEEP_ONLINE) {
+    // Giữ kết nối: Socket.IO tự trả lời ping nội bộ, nhưng nhịp tim presence phải tự gửi mỗi 30 giây
+    const ping = setInterval(() => [...users, admin].forEach((s) => s.emit("presence.ping", {})), 30_000);
+    console.log("\nĐang giữ các user online. Thử chạy trong SSMS: SELECT * FROM dbo.v_active_users;");
+    console.log("Nhấn Ctrl+C để các user lần lượt thoát.");
+    await new Promise<void>((resolve) => process.once("SIGINT", () => resolve()));
+    clearInterval(ping);
+  }
 
   console.log("\n→ Lần lượt đóng kết nối");
   for (const s of users.reverse()) {
