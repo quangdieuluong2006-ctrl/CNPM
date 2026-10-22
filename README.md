@@ -1,6 +1,6 @@
-# Thuyết minh tự động đa ngôn ngữ (Frontend)
+# Thuyết minh tự động đa ngôn ngữ
 
-Đồ án môn Công nghệ phần mềm, hướng Frontend: giao diện Web (React.js) và Mobile (React Native). Người dùng tải video lên, chọn ngôn ngữ đích, theo dõi tiến trình và nhận kết quả lồng tiếng.
+Đồ án môn Công nghệ phần mềm: hệ thống full-stack gồm Backend Node.js + SQL Server, Web User, Web Admin (React.js) và Mobile (React Native). Người dùng tải video lên, chọn ngôn ngữ đích, theo dõi tiến trình và nhận kết quả lồng tiếng.
 
 **Bản demo web:** https://cnpm-pied.vercel.app
 
@@ -12,31 +12,44 @@
 | Võ Thị Ngọc Như      | 3124411207 | Mobile          |
 | Tăng Gia Bảo     | 3124411035   | Tài liệu, CI/CD |
 
-## Chức năng hiện có
+## Thành phần hệ thống
 
-Luồng chính gồm 4 màn hình, chạy trên cả web và mobile:
+| Thư mục | Thành phần | Công nghệ |
+|---|---|---|
+| `api/` | Backend REST + realtime | Node.js 22, Express 5, TypeScript, Socket.IO |
+| `db/` | Cơ sở dữ liệu: migration, view, stored procedure | **SQL Server 2022** |
+| `admin/` | **Web Admin**: thống kê, người dùng đang hoạt động | React 19, Vite 8, TypeScript, TanStack Query, Tailwind CSS, Recharts |
+| `web/` | Web User: tải lên, chọn ngôn ngữ, tiến trình, kết quả | React 19, Vite |
+| `mobile/` | Ứng dụng Mobile | React Native, Expo SDK 57, TypeScript |
 
-1. **Tải lên**: chọn video hoặc audio cần lồng tiếng
-2. **Chọn ngôn ngữ**: chọn một hoặc nhiều ngôn ngữ đích
-3. **Tiến trình**: theo dõi phần trăm xử lý
-4. **Kết quả**: xem và tải bản đã lồng tiếng (web)
+Tài liệu đặc tả: **PRD v3.0** (Backend + SQL Server, Web User, Web Admin, Mobile, presence).
 
-> Hiện tại phần xử lý dùng dữ liệu giả (mock) vì chưa nối với Backend. Khi có API thật sẽ thay thế.
+## Đã hoàn thành
 
-## Công nghệ
+- **CSDL SQL Server**: 14 bảng, view `v_active_users`, thủ tục `sp_admin_dashboard_stats`, migration + dữ liệu mẫu
+- **Xác thực**: đăng ký, đăng nhập, refresh token xoay vòng, đăng xuất, phân quyền user/admin, khóa tài khoản
+- **Người dùng đang hoạt động (presence)**: Socket.IO + nhịp tim 30 giây + bảng `user_sessions`; Web Admin thấy số người online theo thời gian thực
+- **Web Admin**: Dashboard 6 chỉ số + biểu đồ, trang Người dùng đang hoạt động
 
-- Web: React 19, Vite, JavaScript
-- Mobile: React Native, Expo (SDK 57), Expo Router, TypeScript
-- CI: GitHub Actions
-- CD: Vercel (web)
+## Cách chạy nhanh (Windows)
+
+1. SQL Server 2022 đang chạy, bật đăng nhập `sa` và TCP/IP cổng 1433 (hoặc dùng `docker compose up -d sqlserver`).
+2. API: `cd api` → `copy .env.example .env` (sửa `DB_PASSWORD`) → `npm install` → `npm run db:migrate` → `npm run db:seed` → `npm run dev`
+3. Web Admin: `cd admin` → `npm install` → `npm run dev` → mở http://localhost:5174, đăng nhập `admin@demo.vn` / `Demo@12345`
+4. Trình diễn 4 người dùng đang hoạt động: `cd api` → `npm run demo:presence`
+
+Chi tiết: `api/README.md`, `admin/README.md`.
 
 ## Cấu trúc thư mục
 
 ```
 CNPM/
-├── web/       # Ứng dụng web (React + Vite)
+├── api/       # Backend Node.js + Express + Socket.IO
+├── db/        # migration SQL Server
+├── admin/     # Web Admin (React + Vite + TypeScript)
+├── web/       # Web User (React + Vite)
 ├── mobile/    # Ứng dụng mobile (React Native + Expo)
-└── .github/   # Cấu hình CI (GitHub Actions)
+└── .github/   # CI (GitHub Actions)
 ```
 
 ## Cách chạy
@@ -69,9 +82,10 @@ Quét mã QR bằng app Expo Go (cần tài khoản Expo, đăng nhập bằng `
 
 ## Quy trình làm việc
 
-- Không code trực tiếp lên nhánh `main`, mỗi tính năng làm trên một nhánh riêng (ví dụ `feature/web-upload`).
-- Làm xong thì mở Pull Request, CI tự chạy kiểm tra, đạt thì gộp vào `main`.
-- Gộp vào `main` thì Vercel tự cập nhật bản web.
+- Không code trực tiếp lên `main` hay `develop`; mỗi tính năng làm trên một nhánh riêng tạo từ `develop` (ví dụ `feature/FE-12-presence`).
+- Làm xong thì mở Pull Request vào **`develop`**, CI tự chạy kiểm tra, **thành viên còn lại review và Approve** rồi mới gộp.
+- Khi chốt bản để báo cáo/phát hành: mở Pull Request `develop` → `main`. Gộp vào `main` thì Vercel tự cập nhật bản web.
+- Commit theo Conventional Commits: `feat(...)`, `fix(...)`, `test(...)`, `docs(...)`.
 
 ## Tài liệu
 
