@@ -77,6 +77,6 @@ describe.skipIf(!runDbTests)("SQL Server – migration, seed, presence", () => {
   it("GET /health/ready báo đã kết nối CSDL", async () => {
     const res = await request(createApp()).get("/health/ready");
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ status: "ready", database: "ok", migrations: 2 });
+    expect(res.body).toMatchObject({ status: "ready", database: "ok", migrations: 3 });
   });
 });

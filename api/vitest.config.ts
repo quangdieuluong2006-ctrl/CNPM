@@ -15,6 +15,7 @@ export default defineConfig({
       DB_TRUST_SERVER_CERTIFICATE: "true",
       JWT_ACCESS_SECRET: "test-secret-chi-dung-cho-kiem-thu-0123456789",
       LOGIN_RATE_LIMIT_MAX: "1000",
+      PRESENCE_CLEANUP_INTERVAL_SEC: "30",
     },
   },
 });

@@ -75,3 +75,25 @@ curl -X POST localhost:3000/api/v1/auth/login -H "Content-Type: application/json
   -d '{"email":"user1@demo.vn","password":"Demo@12345","clientType":"mobile"}'
 curl localhost:3000/api/v1/me -H "Authorization: Bearer <accessToken>"
 ```
+
+## Người dùng đang hoạt động – presence (FE-12, PRD mục 3.7)
+
+**Định nghĩa:** một user "đang hoạt động" khi có ít nhất một phiên trong `user_sessions` **chưa đóng** và có nhịp tim trong **60 giây** gần nhất. Một user mở nhiều tab/thiết bị vẫn tính **1** (view `dbo.v_active_users` gom theo user).
+
+**Cơ chế:**
+
+1. Client đăng nhập xong thì mở Socket.IO: `io(API_URL, { auth: { token: accessToken }, query: { clientType } })` → server **INSERT** một dòng `user_sessions` và gửi lại `presence.session { sessionId }`.
+2. Mỗi **30 giây** client gửi `socket.emit("presence.ping", {})` → server **UPDATE** `last_seen_at`.
+3. Đóng tab / đăng xuất → sự kiện `disconnect` → server ghi `disconnected_at`.
+4. Mất mạng đột ngột không có `disconnect` → tác vụ dọn phiên chạy mỗi 30 giây, đóng phiên quá 60 giây không có nhịp tim.
+5. Sau mỗi thay đổi, server đếm lại từ view và phát `presence.update { activeUsers, activeUsersAll, changed: { userId, type }, ts }` tới phòng `admins` (chỉ socket Web Admin của tài khoản admin).
+6. Socket.IO không kết nối được → gọi `POST /api/v1/presence/heartbeat { clientType }` mỗi 30 giây (dự phòng).
+
+**API cho Web Admin** (cần token admin, user thường nhận 403):
+
+| Endpoint | Trả về |
+|---|---|
+| `GET /admin/presence?role=user\|all&clientType=web\|mobile\|admin` | `{ count, activeUsers, activeUsersAll, users: [{ userId, fullName, email, role, clientTypes, openSessions, onlineSince, lastSeenAt }] }` |
+| `GET /admin/stats` | `{ totalUsers, activeUsers, dailyActiveUsers, jobsToday, jobsProcessing, jobsFailedToday, jobsByDay[7], targetLanguages[] }` |
+
+**Trình diễn nhanh** (không cần giao diện): chạy `npm run dev` ở một terminal, rồi ở terminal khác chạy `npm run demo:presence`. Script cho 4 user lần lượt kết nối, in ra số Web Admin nhận được theo thời gian thực và bảng `GET /admin/presence`, rồi lần lượt thoát.
